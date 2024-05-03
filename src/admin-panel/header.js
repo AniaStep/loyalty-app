@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import FilterVintageIcon from '@mui/icons-material/FilterVintage';
-import { useNavigate } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import { ModalUnstyled as ModalUnstyledLoyaltyRules } from "./loyalty-rules";
 import { ModalUnstyled as ModalUnstyledAdminSettings } from "./admin-settings";
 import { ModalUnstyled as ModalUnstyledProducts } from "./products";
@@ -36,8 +36,11 @@ export function ResponsiveAppBar() {
     const [openLoyaltyRules, setOpenLoyaltyRules] = React.useState(false);
     const [openProfile, setOpenProfile] = React.useState(false);
     const [openProducts, setOpenProducts] = React.useState(false);
+    const location = useLocation();
+    const adminId = location.pathname.split("/")[2];
 
     const handleOpenNavMenu = (event) => {
+
         setAnchorElNav(event.currentTarget);
     };
 
@@ -45,18 +48,30 @@ export function ResponsiveAppBar() {
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleCloseNavMenu = () => {
+    const handleCloseNavMenu = (event) => {
+        if (event.currentTarget.textContent === 'Pulpit') {
+            navigate(`/admin/${adminId}/dashboard`);
+        }
+        if (event.currentTarget.textContent === 'Statystyki') {
+            navigate(`/admin/${adminId}/statistics`);
+        }
+        if (event.currentTarget.textContent === 'Klienci') {
+            navigate(`/admin/${adminId}/clients`);
+        }
         setAnchorElNav(null);
     };
 
     const handleCloseUserMenu = (event) => {
         if (event.currentTarget.textContent === 'Wyloguj') {
             logout(navigate);
-        } else if (event.currentTarget.textContent === 'Mój profil') {
+        }
+        if (event.currentTarget.textContent === 'Mój profil') {
             setOpenProfile(true);
-        } else if (event.currentTarget.textContent === 'Konfiguracja') {
+        }
+        if (event.currentTarget.textContent === 'Konfiguracja') {
             setOpenLoyaltyRules(true);
-        } else if (event.currentTarget.textContent === 'Oferta produktowa') {
+        }
+        if (event.currentTarget.textContent === 'Oferta produktowa') {
             setOpenProducts(true);
         }
         setAnchorElUser(null);
@@ -71,7 +86,7 @@ export function ResponsiveAppBar() {
                         variant="h6"
                         noWrap
                         component="a"
-                        href="#app-bar-with-responsive-menu"
+                        // href="#app-bar-with-responsive-menu"
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -126,7 +141,7 @@ export function ResponsiveAppBar() {
                         variant="h5"
                         noWrap
                         component="a"
-                        href="#app-bar-with-responsive-menu"
+                        // href="#app-bar-with-responsive-menu"
                         sx={{
                             mr: 2,
                             display: { xs: 'flex', md: 'none' },

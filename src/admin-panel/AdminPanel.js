@@ -8,7 +8,6 @@ export const AdminPanel = () => {
     const location = useLocation();
     const pageId = location.pathname.split("/")[3];
 
-
     return (
         <div>
             <ResponsiveAppBar/>

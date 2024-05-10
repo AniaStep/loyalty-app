@@ -1,11 +1,245 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from "react-router-dom";
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
+import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import TextField from "@mui/material/TextField";
+import { db } from '../firebase/config';
+import { useAuth } from "../firebase/AuthProvider";
+import { updateDoc, query, where, getDocs, collection, setDoc} from 'firebase/firestore';
+import { ref, getStorage, uploadBytes, getDownloadURL } from "firebase/storage";
+
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+});
+
+export function InputFileUpload({ adminId, onUploadSuccess }) {
+    const [file, setFile] = useState(null);
+
+    const storage = getStorage();
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+    };
+
+
+    const handleUpload = async () => {
+        console.log(adminId)
+
+        try {
+            if (!file) {
+                console.error("No file selected!");
+                return;
+            }
+
+            const filePath = `logos/${adminId}/${file.name}`;
+            const fileRef = ref(storage, filePath);
+
+            await uploadBytes(fileRef, file);
+
+            const logoURL = await getDownloadURL(fileRef);
+            console.log("Logo uploaded successfully!");
+            onUploadSuccess(logoURL);
+        } catch (error) {
+            console.error("Error uploading logo:", error);
+        }
+    };
+
+    return (
+        <>
+            <input
+                type="file"
+                id="file-upload"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+            />
+            <label htmlFor="file-upload">
+                <Button
+                    component="span"
+                    variant="contained"
+                    startIcon={<CloudUploadIcon />}
+                >
+                    Pobierz
+                </Button>
+            </label>
+            <Button
+                variant="contained"
+                onClick={handleUpload}
+                disabled={!file}
+            >
+                Wyślij
+            </Button>
+        </>
+    );
+}
+
+InputFileUpload.propTypes = {
+    adminId: PropTypes.string.isRequired,
+    onUploadSuccess: PropTypes.func.isRequired,
+};
 
 export function ModalUnstyled(props) {
+
     const { open, onClose } = props;
+    const [ profileData, setProfileData ] = useState({
+        company: '',
+        name: '',
+        surname: '',
+        email: '',
+        phone: '',
+    });
+    const location = useLocation();
+    const [adminId, setAdminId] = useState('');
+    const [errors, setErrors] = useState({});
+    const [logoURL, setLogoURL] = useState(null);
+
+    const user = useAuth();
+
+    useEffect(() => {
+        const id = location.pathname.split("/")[2];
+        setAdminId(id);
+    }, [location.pathname]);
+
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (adminId) {
+                    const q = query(collection(db, "admins"), where("adminId", "==", adminId));
+                    const querySnapshot = await getDocs(q);
+                    const adminData = querySnapshot.docs.map((doc) => doc.data());
+                    if (adminData.length > 0) {
+                        const data = adminData[0];
+                        console.log("Admin data:", data);
+                        setProfileData({
+                            company: data.company || '',
+                            name: data.name || '',
+                            surname: data.surname || '',
+                            email: data.email || '',
+                            phone: data.phone || '',
+                            logoURL: data.logoURL || '',
+                        });
+
+                    } else {
+                        console.log("No such document!");
+                    }
+                } else {
+                    console.log("User not found!");
+                }
+            } catch (error) {
+                console.error("Error getting document:", error);
+            }
+        };
+
+        fetchData();
+
+    }, [adminId]);
+
+
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setProfileData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+
+        const newErrors = {};
+        if (name === 'company' && (value.length < 1)) {
+            newErrors.company = "Pole nie może być puste.";
+        }
+
+        if (name === 'name' && (value.length < 2)) {
+            newErrors.name = "Imię musi zawierać co najmniej 2 znaki.";
+        }
+        if (name === 'surname' && (value.length < 2)) {
+            newErrors.surname = "Nazwisko musi zawierać co najmniej 2 znaki.";
+        }
+
+        if (name === 'email' && !/\S+@\S+\.\S+/.test(value)) {
+            newErrors.email = "Wprowadź poprawny adres email.";
+        }
+
+        if (name === 'phone' && !/^\d{9}$/.test(value)) {
+            newErrors.phone = "Numer telefonu musi zawierać 9 cyfr.";
+        }
+
+        setErrors(newErrors);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const currentUrl = window.location.href;
+        const linkToShare = currentUrl.replace("/admin/", "/client/");
+        console.log("Link to share:", linkToShare);
+        try {
+            if (adminId) {
+                const q = query(collection(db, "admins"), where("adminId", "==", adminId));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const adminDocRef = querySnapshot.docs[0].ref;
+                    await setDoc(adminDocRef, {
+                        company: profileData.company,
+                        name: profileData.name,
+                        surname: profileData.surname,
+                        email: profileData.email,
+                        phone: profileData.phone,
+                        clientLogin: linkToShare
+                    }, { merge: true });
+                    console.log("Document successfully updated!");
+                } else {
+                    console.log("No matching documents!");
+                }
+            } else {
+                console.log("Invalid adminId!");
+            }
+        } catch (error) {
+            console.error("Error updating document: ", error);
+        }
+        onClose()
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+        };
+        fetchData();
+    }, [adminId]);
+
+
+    const handleUploadSuccess = async (url) => {
+        setLogoURL(url);
+        try {
+            if (adminId) {
+                const q = query(collection(db, "admins"), where("adminId", "==", adminId));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const adminDocRef = querySnapshot.docs[0].ref;
+                    await updateDoc(adminDocRef, { logoURL: url });
+                    console.log("Logo URL updated successfully!");
+                } else {
+                    console.log("No matching documents!");
+                }
+            } else {
+                console.log("Invalid adminId!");
+            }
+        } catch (error) {
+            console.error("Error updating logo URL: ", error);
+        }
+    };
 
     return (
         <div>
@@ -17,16 +251,56 @@ export function ModalUnstyled(props) {
                 onClose={onClose}
                 slots={{ backdrop: StyledBackdrop }}
             >
-                <ModalContent sx={{ width: "70%", height: "70%"}}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end'}}>
-                        <button onClick={onClose}>Zamknij</button>
+                <ModalContent sx={{
+                    width: "500px",
+                    height: "70%",
+                    overflow: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center"
+                }}>
+                    <form style={{display: "flex", flexDirection: "column", gap: "15px", width: "400px"}}>
+                        <h2>Dane administratora </h2>
+                        <TextField name="company" label="Nazwa firmy" defaultValue={profileData.company}
+                                   onChange={handleChange} required error={!!errors.company}
+                                   helperText={errors.company}/>
+                        <TextField name="name" label="Imię administratora" defaultValue={profileData.name}
+                                   onChange={handleChange} required error={!!errors.name} helperText={errors.name}/>
+                        <TextField name="surname" label="Nazwisko administratora" defaultValue={profileData.surname}
+                                   onChange={handleChange} required error={!!errors.surname}
+                                   helperText={errors.surname}/>
+                        <TextField name="email" label="Email" defaultValue={profileData.email} onChange={handleChange}
+                                   required error={!!errors.email} helperText={errors.email}/>
+                        <TextField name="phone" label="Telefon" defaultValue={profileData.phone} onChange={handleChange}
+                                   error={!!errors.phone} helperText={errors.phone}/>
+
+                    </form>
+
+
+                    <h3>To jest Twój unikalny link do strony logowania dla Twoich klientów: </h3>
+                    <a href={window.location.href.replace("/admin/", "/client/")}>
+                        {window.location.href.replace("/admin/", "/client/")}
+                    </a>
+
+                    <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+
+                        <h3>Dodaj logo firmy do strony logowania Twoich klientów.</h3>
+
+                        <div style={{width: "200px", height: "200px", border: "1px solid gray"}}>
+                            {profileData.logoURL && <img src={profileData.logoURL} alt="Logo"
+                                             style={{maxWidth: "100%", maxHeight: "100px", marginTop: "20px"}}/>}
+                        </div>
+                        <div><InputFileUpload adminId={adminId} onUploadSuccess={handleUploadSuccess}/>
+                        </div>
+
                     </div>
-                        <h2 id="unstyled-modal-title" className="modal-title">
-                            Mój profil
-                        </h2>
-                        <p id="unstyled-modal-description" className="modal-description">
-                            Aliquid amet deserunt earum!
-                        </p>
+
+                    <div style={{}}>
+                        <Button variant="contained" onClick={handleSubmit}>Aktualizuj</Button>
+                        <Button variant="contained" onClick={onClose}>Anuluj</Button>
+                    </div>
+
+
                 </ModalContent>
             </Modal>
         </div>
@@ -34,10 +308,10 @@ export function ModalUnstyled(props) {
 }
 
 const Backdrop = React.forwardRef((props, ref) => {
-    const { open, className, ...other } = props;
+    const {open, className, ...other} = props;
     return (
         <div
-            className={clsx({ 'base-Backdrop-open': open }, className)}
+            className={clsx({'base-Backdrop-open': open}, className)}
             ref={ref}
             {...other}
         />

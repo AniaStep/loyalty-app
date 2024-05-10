@@ -3,9 +3,114 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
+import { Variant1,Variant2,Variant3 } from "./loyalty-rules-variants";
+import {useEffect, useState} from "react";
+import Button from '@mui/material/Button';
+import { db } from '../firebase/config';
+import { query, where, getDocs, collection, setDoc } from 'firebase/firestore';
+import { useLocation } from "react-router-dom";
+
 
 export function ModalUnstyled(props) {
+    const location = useLocation();
+    const [adminId, setAdminId] = useState('');
+    const [ profileData, setProfileData ] = useState({
+        value1: '',
+        value2: '',
+        value3: '',
+        points1: '',
+        points2: '',
+        months3: '',
+        percentage3: '',
+    });
+
+    useEffect(() => {
+        const id = location.pathname.split("/")[2];
+        setAdminId(id);
+    }, [location.pathname]);
+
+
     const { open, onClose } = props;
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (adminId) {
+                    const q = query(collection(db, "loyaltyRules"), where("adminId", "==", adminId));
+                    const querySnapshot = await getDocs(q);
+                    const adminData = querySnapshot.docs.map((doc) => doc.data());
+                    if (adminData.length > 0) {
+                        const data = adminData[0];
+                        console.log("Admin data:", data);
+                        setProfileData({
+                            value1: data.value1 || '',
+                            points1: data.points1 || '',
+                            value2: data.value2 || '',
+                            points2: data.points2 || '',
+                            value3: data.value3 || '',
+                            percentage3: data.percentage3 || '',
+                            months3: data.months3 || '',
+                        });
+
+                    } else {
+                        console.log("No such document!");
+                    }
+                } else {
+                    console.log("User not found!");
+                }
+            } catch (error) {
+                console.error("Error getting document:", error);
+            }
+        };
+
+        fetchData();
+
+    }, [adminId]);
+
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+
+        try {
+            if (!adminId) {
+                console.error("Brak adminId!");
+                return;
+            }
+
+            const q = query(collection(db, "loyaltyRules"), where("adminId", "==", adminId));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const adminDocRef = querySnapshot.docs[0].ref;
+                await setDoc(adminDocRef, {
+                    value1: profileData.value1,
+                    points1: profileData.points1,
+                    value2: profileData.value2,
+                    points2: profileData.points2,
+                    value3: profileData.value3,
+                    percentage3: profileData.percentage3,
+                    months3: profileData.months3,
+                }, { merge: true });
+                console.log("Dokument został pomyślnie zaktualizowany!");
+            } else {
+                console.log("Brak pasujących dokumentów!");
+            }
+        } catch (error) {
+            console.error("Błąd podczas aktualizacji dokumentu:", error);
+        }
+        onClose();
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+        };
+        fetchData();
+    }, [adminId]);
+
+    const handleVariantChange = (variantData) => {
+        setProfileData({ ...profileData, ...variantData });
+    };
+
 
     return (
         <div>
@@ -17,16 +122,37 @@ export function ModalUnstyled(props) {
                 onClose={onClose}
                 slots={{ backdrop: StyledBackdrop }}
             >
-                <ModalContent sx={{ width: "70%", height: "70%"}}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end'}}>
-                        <button onClick={onClose}>Zamknij</button>
+                <ModalContent sx={{width: "70%", height: "70%"}}>
+                    <div style={{display: "flex", flexDirection: "column", gap: "30px", overflow: "auto"}}>
+                    <h2>Konfiguracja programu</h2>
+                    <h3>I. Punkty za zakupy</h3>
+                    <div style={{display: "flex", gap: "6px"}}>
+                        <><Variant1
+                            onChange={handleVariantChange}
+                            value1={profileData.value1}
+                            points1={profileData.points1}
+                        />
+                        </>
                     </div>
-                        <h2 id="unstyled-modal-title" className="modal-title">
-                            Konfiguracja
-                        </h2>
-                        <p id="unstyled-modal-description" className="modal-description">
-                            Aliquid amet deserunt earum!
-                        </p>
+                    <h3>II. Zasady wykorzystania punktów</h3>
+                    <div style={{display: "flex", gap: "6px"}}>
+                        <>  <Variant2
+                            onChange={handleVariantChange}
+                            value2={profileData.value2}
+                            points2={profileData.points2}
+                        /></>
+                    </div>
+                    <h3>III. Dodatkowe profity</h3>
+                    <div style={{display: "flex", flexDirection: "column", gap: "23px"}}>
+                        <>   <Variant3
+                            onChange={handleVariantChange}
+                            value3={profileData.value3}
+                            months3={profileData.months3}
+                            percentage3={profileData.percentage3}
+                        /></>
+                    </div>
+                    <Button onClick={handleSave} variant="contained">Zapisz i zamknij</Button>
+                    </div>
                 </ModalContent>
             </Modal>
         </div>
@@ -34,10 +160,10 @@ export function ModalUnstyled(props) {
 }
 
 const Backdrop = React.forwardRef((props, ref) => {
-    const { open, className, ...other } = props;
+    const {open, className, ...other} = props;
     return (
         <div
-            className={clsx({ 'base-Backdrop-open': open }, className)}
+            className={clsx({'base-Backdrop-open': open}, className)}
             ref={ref}
             {...other}
         />

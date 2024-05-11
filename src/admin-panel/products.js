@@ -3,9 +3,20 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
+import Button from '@mui/material/Button';
+import { DenseTable } from "./products-table";
+
+
+import { useState } from 'react';
+import { ModalUnstyled as ModalUnstyledProductNew } from './product-record-new';
 
 export function ModalUnstyled(props) {
     const { open, onClose } = props;
+    const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+
+    const handleNewProductModalOpen = () => {
+        setIsNewProductModalOpen(true);
+    };
 
     return (
         <div>
@@ -18,17 +29,18 @@ export function ModalUnstyled(props) {
                 slots={{ backdrop: StyledBackdrop }}
             >
                 <ModalContent sx={{ width: "70%", height: "70%"}}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end'}}>
-                        <button onClick={onClose}>Zamknij</button>
-                    </div>
                         <h2 id="unstyled-modal-title" className="modal-title">
                             Oferta produktowa i cennik
                         </h2>
-                        <p id="unstyled-modal-description" className="modal-description">
-                            Aliquid amet deserunt earum!
-                        </p>
+                    <div><DenseTable/></div>
+                    <div>
+                        <Button variant="contained" onClick={handleNewProductModalOpen}>Dodaj nowy produkt</Button>
+                        <Button onClick={onClose} variant="contained">Anuluj</Button>
+                    </div>
+
                 </ModalContent>
             </Modal>
+            {isNewProductModalOpen && <ModalUnstyledProductNew open={isNewProductModalOpen} onClose={() => setIsNewProductModalOpen(false)} />}
         </div>
     );
 }

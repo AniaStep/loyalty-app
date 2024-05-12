@@ -16,7 +16,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import { ModalUnstyled as ModalUnstyledLoyaltyRules } from "./loyalty-rules";
 import { ModalUnstyled as ModalUnstyledAdminSettings } from "./admin-settings";
 import { ModalUnstyled as ModalUnstyledProducts } from "./products";
-
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const pages = ['Pulpit', 'Klienci', 'Statystyki'];
 const settings = ['Mój profil', 'Konfiguracja', 'Oferta produktowa', 'Wyloguj'];
@@ -170,7 +170,8 @@ export function ResponsiveAppBar() {
                     <Box sx={{ flexGrow: 0, display: "flex" }}>
                         <Tooltip title="Ustawienia">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar src="/broken-image.jpg" />
+                                {/*<Avatar src="/broken-image.jpg" />*/}
+                                <SettingsIcon style={{fontSize: "30px", color: "white"}}/>
                             </IconButton>
                         </Tooltip>
 

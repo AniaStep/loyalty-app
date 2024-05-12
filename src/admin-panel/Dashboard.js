@@ -1,10 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import { ChartsOverviewDemo } from "./charts";
+import { WelcomeInfoCard } from "./dashboard-summary";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -18,7 +19,7 @@ const Item = styled(Paper)(({ theme }) => ({
 function BasicGrid() {
 
     const itemStyle = {
-        height: "70vh",
+        height: "80vh",
         marginTop: 20,
         display: "flex",
         flexDirection: "column",
@@ -61,25 +62,6 @@ function BasicGrid() {
     );
 }
 
-const WelcomeInfoCard = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const goToClients = () => {
-        const adminId = location.pathname.split("/")[2];
-        navigate(`/admin/${adminId}/clients`);
-    };
-
-    return (
-        <>
-            <div>
-                <h1>Dzień dobry, [user]!</h1>
-                <p> W Twoim programie uczestniczy 10 osób.</p>
-                <p> W ostatnim tygodniu dołączyło 5 osób.</p>
-            </div>
-            <Button variant="contained" onClick={goToClients}> Lista klientów </Button>
-        </>
-    )
-}
 
 const ChartSection = () => {
     const navigate = useNavigate();
@@ -91,7 +73,7 @@ const ChartSection = () => {
 
     return (
         <>
-            <h1>Tytuł wykresu</h1>
+            <h1>Liczba transakcji</h1>
             <div><ChartsOverviewDemo/></div>
             <Button variant="contained" onClick={goToStatistics}> Więcej statystyk </Button>
         </>

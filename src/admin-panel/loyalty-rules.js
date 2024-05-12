@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
 import Button from '@mui/material/Button';
-import { query, where, getDocs, collection, setDoc } from 'firebase/firestore';
+import { query, where, getDocs, collection, setDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { useLocation } from "react-router-dom";
 import { Variant1, Variant2, Variant3 } from "./loyalty-rules-variants";
 
@@ -61,6 +61,38 @@ export function ModalUnstyled(props) {
 
         fetchData();
 
+    }, [adminId]);
+
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, "loyaltyRules"), async (snapshot) => {
+            try {
+                snapshot.docChanges().forEach(async (change) => {
+                    if (change.type === "modified" && change.doc.exists) {
+                        const { percentage3 } = change.doc.data();
+
+                        const productsQuery = query(collection(db, 'products'), where('adminId', '==', adminId));
+                        const productsQuerySnapshot = await getDocs(productsQuery);
+
+                        productsQuerySnapshot.forEach(async (doc) => {
+                            const productData = doc.data();
+                            try {
+                                await updateDoc(doc.ref, {
+                                    discount: percentage3,
+                                    priceReduced: productData.priceRegular - (productData.priceRegular * percentage3 / 100),
+                                });
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        });
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        return () => unsubscribe();
     }, [adminId]);
 
 

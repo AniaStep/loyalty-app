@@ -236,6 +236,7 @@ export function CollapsibleTable() {
                 });
                 productsQuerySnapshot.forEach(async (doc) => {
                     const productData = doc.data();
+                    console.log(loyaltyRules.percentage3)
 
                     try {
                         await updateDoc(doc.ref, {

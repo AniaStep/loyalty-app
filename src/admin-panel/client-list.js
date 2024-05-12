@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import { db } from '../firebase/config';
-import { collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, getDoc, onSnapshot, updateDoc  } from "firebase/firestore";
 import { useAuth } from "../firebase/AuthProvider";
-import { useLocation } from "react-router-dom";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
@@ -56,8 +55,7 @@ function formatDate(timestamp) {
     return `${day}-${month}-${year}`;
 }
 
-const Row = (props) => {
-    const { row, clientHistory, openModal } = props;
+const Row = ({ row, clientHistory, openModal }) => {
     const [open, setOpen] = React.useState(false);
 
     const handleOpenModal = () => {
@@ -65,7 +63,7 @@ const Row = (props) => {
     };
 
     return (
-        <React.Fragment>
+        <>
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
                 <TableCell>
                     <IconButton
@@ -127,7 +125,7 @@ const Row = (props) => {
                     </Collapse>
                 </TableCell>
             </TableRow>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -162,7 +160,6 @@ export function CollapsibleTable() {
     const [adminId, setAdminId] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const user = useAuth();
-    const location = useLocation();
     const [clientHistory, setClientHistory] = useState({});
     const [filteredRows, setFilteredRows] = React.useState([]);
     const [selectedClient, setSelectedClient] = React.useState(null);
@@ -213,8 +210,52 @@ export function CollapsibleTable() {
         };
 
         fetchData();
-    }, [user]);
 
+        const unsubscribe = onSnapshot(collection(db, "loyaltyRules"), async (snapshot) => {
+            try {
+                const loyaltyRules = snapshot.docs.map(doc => doc.data())[0];
+                const adminId = user.uid;
+                const clientsQuery = query(collection(db, 'clients'), where('adminId', '==', adminId));
+                const querySnapshot = await getDocs(clientsQuery);
+                const productsQuery = query(collection(db, 'products'), where('adminId', '==', adminId));
+                const productsQuerySnapshot = await getDocs(productsQuery);
+
+                querySnapshot.forEach(async (doc) => {
+                    const clientData = doc.data();
+                    const totalPoints = clientData.totalPoints;
+                    const totalValue = clientData.totalValueNum;
+
+                    try {
+                        await updateDoc(doc.ref, {
+                            gained: (loyaltyRules.points2 > 0) ? (totalPoints / loyaltyRules.points2 * loyaltyRules.value2) : 0,
+                            discount: totalValue >= loyaltyRules.value3
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+                productsQuerySnapshot.forEach(async (doc) => {
+                    const productData = doc.data();
+
+                    try {
+                        await updateDoc(doc.ref, {
+                            discount: loyaltyRules.percentage3,
+                            priceReduced: productData.priceRegular - (productData.priceRegular * loyaltyRules.percentage3 / 100),
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+
+
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        return () => unsubscribe();
+
+    }, [user]);
 
     useEffect(() => {
         const filtered = rows.filter(
@@ -224,7 +265,6 @@ export function CollapsibleTable() {
         );
         setFilteredRows(filtered);
     }, [searchTerm, rows]);
-
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);

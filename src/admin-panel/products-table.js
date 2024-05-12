@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { db } from '../firebase/config';
+import { useAuth } from "../firebase/AuthProvider";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -10,7 +12,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TableCell from '@mui/material/TableCell';
 import { ModalUnstyled as ModalUnstyledProductEdit } from './product-record-edition';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase/config';
 
 
 function createData(name, priceRegular, priceReduced) {
@@ -25,6 +26,7 @@ export function DenseTable() {
     const [openEditModal, setOpenEditModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [products, setProducts] = useState([]);
+    const user = useAuth();
 
     const fetchProducts = async () => {
         try {

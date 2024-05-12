@@ -75,6 +75,8 @@ export function ModalUnstyled(props) {
             adminId: adminId,
             clientId: "n/a",
             clientRef: 'n/a',
+            discount: false,
+            gained: 0,
             dateFrom: selectedClient ? selectedClient.dateFrom : currentDate,
             totalPoints: 0,
             totalValue: `${0} PLN`
@@ -132,7 +134,7 @@ export function ModalUnstyled(props) {
                 open={open}
                 onClose={onClose}
                 slots={{ backdrop: StyledBackdrop }}
-                selectedClient={selectedClient} // Dodaj tę linię
+                selectedClient={selectedClient}
             >
                 <ModalContent sx={{width: 500, height: 'auto'}}>
                     <Box

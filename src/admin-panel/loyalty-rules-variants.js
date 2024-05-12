@@ -119,41 +119,24 @@ export function Variant2({ onChange, value2, points2 }) {
 }
 
 
-export function Variant3({ onChange, value3, months3, percentage3 }) {
+export function Variant3({ onChange, value3, percentage3 }) {
     const handleValue3Change = (event) => {
         const value = parseInt(event.target.value, 10);
         if (value >= 0) {
-            onChange({ value3: value, months3, percentage3 });
+            onChange({ value3: value, percentage3 });
         }
     };
 
-    const handleMonths3Change = (event) => {
-        const value = parseInt(event.target.value, 10);
-        if (value >= 0) {
-            onChange({ value3, months3: value, percentage3 });
-        }
-    };
+
 
     const handlePercentage3Change = (event) => {
         const value = parseInt(event.target.value, 10);
         if (value >= 0) {
-            onChange({ value3, months3, percentage3: value });
+            onChange({ value3, percentage3: value });
         }
     };
 
-    const getMonths3Text = (months3) => {
-        if (months3 === 1) {
-            return 'miesiąc, ';
-        } else if (months3 % 10 === 2 || months3 % 10 === 3 || months3 % 10 === 4) {
-            if (months3 % 100 === 12 || months3 % 100 === 13 || months3 % 100 === 14) {
-                return 'miesięcy, ';
-            } else {
-                return 'miesiące, ';
-            }
-        } else {
-            return 'miesięcy, ';
-        }
-    };
+
 
 
     return (
@@ -169,17 +152,7 @@ export function Variant3({ onChange, value3, months3, percentage3 }) {
                 />
                 <p> PLN </p>
             </div>
-            <div style={{display: 'flex', gap: "8px"}}>
-                <p>i są w programie co najmniej </p>
-                <TextField
-                    label="Liczba miesięcy"
-                    type="number"
-                    value={months3}
-                    onChange={handleMonths3Change}
-                    inputProps={{min: 0}}
-                />
-                <p>{getMonths3Text(months3)}</p>
-            </div>
+
 
             <div style={{display: 'flex', gap: "8px"}}>
                 <p>otrzymują rabat w wysokości</p>

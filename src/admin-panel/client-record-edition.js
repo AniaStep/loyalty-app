@@ -33,6 +33,12 @@ export function ModalUnstyled(props) {
 
     const resetChanges = () => {
         setSelectedOption('');
+        setUpdatedClientData(prevState => ({
+            ...prevState,
+            value: '',
+            pointsGranted: '',
+            pointsUsed: ''
+        }));
         setErrors({});
     };
 
@@ -92,12 +98,15 @@ export function ModalUnstyled(props) {
                     return;
                 }
             }
-
+            const newId = uuidv4();
             const clientsQuery = query(collection(db, 'clients'), where('email', '==', selectedClient.email), where('adminId', '==', selectedClient.adminId));
             const querySnapshot = await getDocs(clientsQuery);
             const historyQuery = query(collection(db, 'history'), where('email', '==', selectedClient.email), where('adminId', '==', selectedClient.adminId));
             const historyQuerySnapshot = await getDocs(historyQuery);
-            const newId = uuidv4();
+            const loyaltyRulesQuery = query(collection(db, 'loyaltyRules'), where('adminId', '==', selectedClient.adminId));
+            const loyaltyRulesQuerySnapshot = await getDocs(loyaltyRulesQuery);
+            const loyaltyRulesData = loyaltyRulesQuerySnapshot.docs[0].data();
+
 
             querySnapshot.forEach(async (doc) => {
                 try {
@@ -125,17 +134,20 @@ export function ModalUnstyled(props) {
                     totalPointsUsed += data.pointsUsed || 0;
                     totalValue += parseInt(data.value) || 0;
                 });
-
-                const pointsGranted = parseInt(updatedClientData.pointsGranted) || 0;
+                const pointsGranted = (selectedOption === 'Chcę dodać punkty za zakupy' && loyaltyRulesData.value1 > 0 ) ? (parseInt(updatedClientData.value) / loyaltyRulesData.value1 * loyaltyRulesData.points1) : (parseInt(updatedClientData.pointsGranted) || 0);
                 const pointsUsed = parseInt(updatedClientData.pointsUsed) || 0;
                 const newTotalPoints = totalPointsGranted + pointsGranted - totalPointsUsed - pointsUsed;
                 const value = parseInt(updatedClientData.value) || 0;
                 const newTotalValue = totalValue + value;
 
                 querySnapshot.forEach(async (doc) => {
+
                     try {
                         await updateDoc(doc.ref, { totalPoints: newTotalPoints });
-                        await updateDoc(doc.ref, {totalValue: newTotalValue + " PLN"});
+                        await updateDoc(doc.ref, { totalValue: newTotalValue + " PLN"});
+                        await updateDoc(doc.ref, { totalValueNum: newTotalValue });
+                        await updateDoc(doc.ref,{ gained: (loyaltyRulesData.points2 > 0) ? (newTotalPoints / loyaltyRulesData.points2 * loyaltyRulesData.value2) : 0 })
+                        await updateDoc(doc.ref,{ discount: (newTotalValue >= loyaltyRulesData.value3) ? true : false })
                     } catch (err) {
                         console.error(err);
                     }
@@ -149,7 +161,7 @@ export function ModalUnstyled(props) {
                     pointsGranted: pointsGranted,
                     value: value,
                     pointsUsed: pointsUsed,
-                    points: newTotalPoints
+                    points: newTotalPoints,
                 };
 
                 await addDoc(collection(db, 'history'), newHistoryRecord);
@@ -185,13 +197,18 @@ export function ModalUnstyled(props) {
         setSelectedOption(option);
     };
 
+    const resetForm = () => {
+        resetChanges();
+        onClose();
+    };
+
     return (
         <div>
             <Modal
                 aria-labelledby="unstyled-modal-title"
                 aria-describedby="unstyled-modal-description"
                 open={open}
-                onClose={onClose}
+                onClose={resetForm}
                 slots={{ backdrop: StyledBackdrop }}
             >
                 <ModalContent sx={{width: 500, height: 'auto'}}>

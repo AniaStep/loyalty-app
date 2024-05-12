@@ -1,15 +1,13 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
+import { db } from '../firebase/config';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
-import { Variant1,Variant2,Variant3 } from "./loyalty-rules-variants";
-import {useEffect, useState} from "react";
 import Button from '@mui/material/Button';
-import { db } from '../firebase/config';
 import { query, where, getDocs, collection, setDoc } from 'firebase/firestore';
 import { useLocation } from "react-router-dom";
-
+import { Variant1, Variant2, Variant3 } from "./loyalty-rules-variants";
 
 export function ModalUnstyled(props) {
     const location = useLocation();
@@ -20,7 +18,6 @@ export function ModalUnstyled(props) {
         value3: '',
         points1: '',
         points2: '',
-        months3: '',
         percentage3: '',
     });
 
@@ -49,7 +46,6 @@ export function ModalUnstyled(props) {
                             points2: data.points2 || '',
                             value3: data.value3 || '',
                             percentage3: data.percentage3 || '',
-                            months3: data.months3 || '',
                         });
 
                     } else {
@@ -89,14 +85,13 @@ export function ModalUnstyled(props) {
                     points2: profileData.points2,
                     value3: profileData.value3,
                     percentage3: profileData.percentage3,
-                    months3: profileData.months3,
                 }, { merge: true });
-                console.log("Dokument został pomyślnie zaktualizowany!");
+                console.log("Doc updated successfully");
             } else {
-                console.log("Brak pasujących dokumentów!");
+                console.log("No docs found");
             }
         } catch (error) {
-            console.error("Błąd podczas aktualizacji dokumentu:", error);
+            console.error(error);
         }
         onClose();
     };

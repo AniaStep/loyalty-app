@@ -9,7 +9,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import TextField from "@mui/material/TextField";
 import { db } from '../firebase/config';
 import { useAuth } from "../firebase/AuthProvider";
-import { updateDoc, query, where, getDocs, collection, setDoc} from 'firebase/firestore';
+import { updateDoc, query, where, getDocs, collection, setDoc, onSnapshot} from 'firebase/firestore';
 import { ref, getStorage, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const VisuallyHiddenInput = styled('input')({
@@ -118,24 +118,34 @@ export function ModalUnstyled(props) {
         const fetchData = async () => {
             try {
                 if (adminId) {
-                    const q = query(collection(db, "admins"), where("adminId", "==", adminId));
-                    const querySnapshot = await getDocs(q);
-                    const adminData = querySnapshot.docs.map((doc) => doc.data());
-                    if (adminData.length > 0) {
-                        const data = adminData[0];
-                        console.log("Admin data:", data);
-                        setProfileData({
-                            company: data.company || '',
-                            name: data.name || '',
-                            surname: data.surname || '',
-                            email: data.email || '',
-                            phone: data.phone || '',
-                            logoURL: data.logoURL || '',
-                        });
+                    const adminQuery = query(collection(db, "admins"), where("adminId", "==", adminId));
+                    const unsubscribe = onSnapshot(adminQuery, (adminSnapshot) => {
+                        adminSnapshot.forEach(async (adminDoc) => {
+                            const adminData = adminDoc.data();
 
-                    } else {
-                        console.log("No such document!");
-                    }
+                            const clientQuery = query(collection(db, "clients"), where("adminId", "==", adminId));
+                            const clientSnapshot = await getDocs(clientQuery);
+                            clientSnapshot.forEach(async (clientDoc) => {
+                                const clientDocRef = clientDoc.ref;
+                                await updateDoc(clientDocRef, {
+                                    logoURL: adminData.logoURL || '',
+                                    adminName: adminData.company || '',
+                                });
+                                console.log("Client document updated successfully!");
+                            });
+
+                            setProfileData({
+                                company: adminData.company || '',
+                                name: adminData.name || '',
+                                surname: adminData.surname || '',
+                                email: adminData.email || '',
+                                phone: adminData.phone || '',
+                                logoURL: adminData.logoURL || '',
+                            });
+                        });
+                    });
+
+                    return () => unsubscribe();
                 } else {
                     console.log("User not found!");
                 }
@@ -145,9 +155,7 @@ export function ModalUnstyled(props) {
         };
 
         fetchData();
-
     }, [adminId]);
-
 
 
     const handleChange = (e) => {

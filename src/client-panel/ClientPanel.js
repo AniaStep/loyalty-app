@@ -1,24 +1,13 @@
 import React, {useEffect, useState} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
 import { auth, db } from "../firebase/config";
-import { collection, getDocs } from "firebase/firestore"
+import { collection, getDocs } from "firebase/firestore";
+import { ResponsiveAppBar } from "./header";
 
 export const ClientPanel = () => {
     const [clientId, setClientId] = useState(null);
     const [clientList, setClientList] = useState([]);
-    const navigate = useNavigate();
     const location = useLocation();
-    const adminId = location.pathname.split("/")[2];
-
-    const logout = async () => {
-        try {
-            await signOut(auth);
-            navigate(`/client/${adminId}`);
-        } catch (err) {
-            console.error(err);
-        }
-    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,12 +43,14 @@ export const ClientPanel = () => {
 
     return (
         <div>
+            <ResponsiveAppBar/>
+
+
             {clientList.map((client) => (
                 <div key={client.id}>
                     <h1>To jest panel klienta: {client.email}</h1>
                 </div>
             ))}
-            <button onClick={logout}>Sign Out</button>
         </div>
     );
 };

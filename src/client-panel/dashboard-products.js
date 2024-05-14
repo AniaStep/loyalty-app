@@ -17,7 +17,6 @@ function createData(name, priceRegular, priceReduced) {
 
 export function BasicTable({ rows, clientsDiscount }) {
 
-
     return (
         <TableContainer component={Paper} style={{width: "400px"}}>
             <Table sx={{ minWidth: 400 }} aria-label="simple table">
@@ -29,8 +28,8 @@ export function BasicTable({ rows, clientsDiscount }) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row) => (
-                        <TableRow key={row.productId}>
+                    {rows.map((row, index) => (
+                        <TableRow key={index}>
                             <TableCell component="th" scope="row">
                                 {row.name}
                             </TableCell>
@@ -43,8 +42,6 @@ export function BasicTable({ rows, clientsDiscount }) {
         </TableContainer>
     );
 }
-
-
 
 export const Products = () => {
     const location = useLocation();

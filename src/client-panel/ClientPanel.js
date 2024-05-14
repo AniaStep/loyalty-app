@@ -1,32 +1,10 @@
 import React, {useEffect, useState} from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase/config";
-import { collection, getDocs } from "firebase/firestore";
+import { auth } from "../firebase/config";
 import { ResponsiveAppBar } from "./header";
+import {Dashboard} from "./Dashboard";
 
 export const ClientPanel = () => {
     const [clientId, setClientId] = useState(null);
-    const [clientList, setClientList] = useState([]);
-    const location = useLocation();
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, "clients"));
-                const clients = [];
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    if (data.clientId === clientId) {
-                        clients.push({ id: doc.id, ...data });
-                    }
-                });
-                setClientList(clients);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchData();
-    }, [clientId]);
 
 
     useEffect(() => {
@@ -42,15 +20,9 @@ export const ClientPanel = () => {
     }, []);
 
     return (
-        <div>
+        <>
             <ResponsiveAppBar/>
-
-
-            {clientList.map((client) => (
-                <div key={client.id}>
-                    <h1>To jest panel klienta: {client.email}</h1>
-                </div>
-            ))}
-        </div>
+            <Dashboard/>
+        </>
     );
 };

@@ -5,12 +5,17 @@ import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import { PageNotFound } from "../misc/PageNotFound";
 import { PasswordResetForm } from "../misc/PasswordResetForm";
+import Paper from '@mui/material/Paper';
+import TextField from "@mui/material/TextField";
+import Button from '@mui/material/Button';
 
 export const ClientLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [isAdminValid, setIsAdminValid] = useState(true);
+    const [adminsLogoURL, setAdminsLogoURL] = useState("");
+
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -40,6 +45,27 @@ export const ClientLogin = () => {
 
         checkAdminValidity();
     }, [adminCollectionRef, adminId]);
+
+    useEffect(() => {
+        const fetchAdminData = async () => {
+            try {
+                const adminsQuery = query(collection(db, 'admins'), where('adminId', '==', adminId));
+                const adminsSnapshot = await getDocs(adminsQuery);
+                const adminsData = adminsSnapshot.docs.map(doc => doc.data())[0];
+
+                if (adminsData) {
+                    setAdminsLogoURL(adminsData.logoURL);
+                }
+
+
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchAdminData();
+    }, [adminId]);
+
 
     const SignUp = async () => {
         if (!isAdminValid) {
@@ -83,15 +109,27 @@ export const ClientLogin = () => {
         return <PasswordResetForm/>
     }
 
+
     return (
-        <div style={{ display: "flex", flexDirection: "column", width: 300, gap: 10 }}>
-            <h1> Rejestracja / Logowanie Klienta</h1>
-            <input placeholder="email" onChange={(e) => setEmail(e.target.value)} />
-            <input placeholder="hasło" type="password" onChange={(e) => setPassword(e.target.value)} />
-            <button onClick={SignUp}>Zarejestruj się</button>
-            <button onClick={SignIn}>Zaloguj się</button>
-            <p onClick={passwordReset} style={{ cursor: "pointer", color: "pink" }}>Nie pamiętam hasła</p>
-            {error && <p>{error}</p>}
+        <div>
+            <Paper className="login-form">
+                <h1> Logowanie</h1>
+                <div className="login-logo">
+                    <img src={adminsLogoURL}/>
+                </div>
+                <TextField className="login-input"
+                           placeholder="email"
+                           onChange={(e) => setEmail(e.target.value)}/>
+                <TextField className="login-input"
+                           placeholder="hasło"
+                           type="password"
+                           onChange={(e) => setPassword(e.target.value)}/>
+                <Button variant="contained" onClick={SignIn}>Zaloguj się</Button>
+                <p onClick={passwordReset} style={{cursor: "pointer", color: "blue"}}>Nie pamiętam hasła</p>
+                {error && <p>{error}</p>}
+                <p>Nie masz konta? Wypełnij pola i <span onClick={SignUp} style={{cursor: "pointer", color: "blue"}}>zarejestruj się</span>
+                </p>
+            </Paper>
         </div>
     );
 }

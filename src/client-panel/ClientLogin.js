@@ -91,6 +91,12 @@ export const ClientLogin = () => {
         }
 
         try {
+            const clientSnapshot = await getDocs(query(clientCollectionRef, where("email", "==", email), where("adminId", "==", adminId)));
+            if (clientSnapshot.empty) {
+                setError("Podany email nie jest przypisany do konta klienta.");
+                return;
+            }
+
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             navigate(`/client/${adminId}/${userCredential.user.uid}`);
         } catch (err) {
@@ -98,7 +104,6 @@ export const ClientLogin = () => {
             console.error(err);
         }
     };
-
 
     if (!isAdminValid) {
         return <PageNotFound />;

@@ -63,7 +63,9 @@ export const Products = () => {
 
                 const productsQuery = query(collection(db, 'products'), where('adminId', '==', adminId));
                 const productsSnapshot = await getDocs(productsQuery);
-                const productsData = productsSnapshot.docs.map(doc => doc.data());
+                let productsData = productsSnapshot.docs.map(doc => doc.data());
+
+                productsData = productsData.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
 
                 if (productsData) {
                     setProducts(productsData);

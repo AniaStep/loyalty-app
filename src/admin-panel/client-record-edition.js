@@ -173,25 +173,28 @@ export function ModalUnstyled(props) {
         onClose()
     };
 
-
     const handleDeleteClient = async (clientId) => {
         try {
-            const clientsQuery = query(collection(db, 'clients'), where('email', '==', selectedClient.email));
-            const querySnapshot = await getDocs(clientsQuery);
+            const confirmation = window.confirm("Czy na pewno chcesz usunąć tego klienta?");
 
-            querySnapshot.forEach(async (doc) => {
-                try {
-                    await deleteDoc(doc.ref);
-                    onClose()
-                } catch (err) {
-                    console.error(err);
-                }
-            });
+            if (confirmation) {
+                const clientsQuery = query(collection(db, 'clients'), where('email', '==', selectedClient.email));
+                const querySnapshot = await getDocs(clientsQuery);
 
+                querySnapshot.forEach(async (doc) => {
+                    try {
+                        await deleteDoc(doc.ref);
+                        onClose()
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+            }
         } catch (err) {
             console.error(err);
         }
     }
+
 
     const handleSelectChange = (option) => {
         setSelectedOption(option);

@@ -57,7 +57,6 @@ export const ClientLogin = () => {
                     setAdminsLogoURL(adminsData.logoURL);
                 }
 
-
             } catch (error) {
                 console.error(error);
             }
@@ -67,7 +66,7 @@ export const ClientLogin = () => {
     }, [adminId]);
 
 
-    const SignUp = async () => {
+    const signUp = async () => {
         if (!isAdminValid) {
             return;
         }
@@ -76,7 +75,7 @@ export const ClientLogin = () => {
             const docRef = await addDoc(clientCollectionRef, {
                 email: email,
                 adminId: adminId,
-                clientId: userCredential.user.uid, // Use userCredential to access the user's UID
+                clientId: userCredential.user.uid,
             });
             navigate(`/client/${adminId}/${docRef.id}`);
         } catch (err) {
@@ -85,12 +84,18 @@ export const ClientLogin = () => {
         }
     };
 
-    const SignIn = async () => {
+    const signIn = async () => {
         if (!isAdminValid) {
             return;
         }
 
         try {
+            const clientSnapshot = await getDocs(query(clientCollectionRef, where("email", "==", email), where("adminId", "==", adminId)));
+            if (clientSnapshot.empty) {
+                setError("Podany email nie jest przypisany do konta klienta.");
+                return;
+            }
+
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             navigate(`/client/${adminId}/${userCredential.user.uid}`);
         } catch (err) {
@@ -98,7 +103,6 @@ export const ClientLogin = () => {
             console.error(err);
         }
     };
-
 
     if (!isAdminValid) {
         return <PageNotFound />;
@@ -109,6 +113,11 @@ export const ClientLogin = () => {
         return <PasswordResetForm/>
     }
 
+    const handleKeyPress = (e) => {
+        if (e.key === "Enter") {
+            signIn();
+        }
+    };
 
     return (
         <div>
@@ -119,15 +128,17 @@ export const ClientLogin = () => {
                 </div>
                 <TextField className="login-input"
                            placeholder="email"
-                           onChange={(e) => setEmail(e.target.value)}/>
+                           onChange={(e) => setEmail(e.target.value)}
+                           onKeyDown={handleKeyPress}/>
                 <TextField className="login-input"
                            placeholder="hasło"
                            type="password"
-                           onChange={(e) => setPassword(e.target.value)}/>
-                <Button variant="contained" onClick={SignIn}>Zaloguj się</Button>
+                           onChange={(e) => setPassword(e.target.value)}
+                           onKeyDown={handleKeyPress}/>
+                <Button variant="contained" onClick={signIn}>Zaloguj się</Button>
                 <p onClick={passwordReset} style={{cursor: "pointer", color: "blue"}}>Nie pamiętam hasła</p>
                 {error && <p>{error}</p>}
-                <p>Nie masz konta? Wypełnij pola i <span onClick={SignUp} style={{cursor: "pointer", color: "blue"}}>zarejestruj się</span>
+                <p>Nie masz konta? Wypełnij pola i <span onClick={signUp} style={{cursor: "pointer", color: "blue"}}>zarejestruj się</span>
                 </p>
             </Paper>
         </div>

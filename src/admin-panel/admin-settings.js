@@ -5,12 +5,14 @@ import clsx from 'clsx';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
 import Button from '@mui/material/Button';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import TextField from "@mui/material/TextField";
 import { db } from '../firebase/config';
 import { useAuth } from "../firebase/AuthProvider";
-import { updateDoc, query, where, getDocs, collection, setDoc, onSnapshot} from 'firebase/firestore';
+import { updateDoc, query, where, getDocs, collection, setDoc, onSnapshot, doc } from 'firebase/firestore';
 import { ref, getStorage, uploadBytes, getDownloadURL } from "firebase/storage";
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import PublishIcon from '@mui/icons-material/Publish';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -24,74 +26,9 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-export function InputFileUpload({ adminId, onUploadSuccess }) {
-    const [file, setFile] = useState(null);
-
-    const storage = getStorage();
-
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        setFile(selectedFile);
-    };
-
-
-    const handleUpload = async () => {
-        console.log(adminId)
-
-        try {
-            if (!file) {
-                console.error("No file selected!");
-                return;
-            }
-
-            const filePath = `logos/${adminId}/${file.name}`;
-            const fileRef = ref(storage, filePath);
-
-            await uploadBytes(fileRef, file);
-
-            const logoURL = await getDownloadURL(fileRef);
-            console.log("Logo uploaded successfully!");
-            onUploadSuccess(logoURL);
-        } catch (error) {
-            console.error("Error uploading logo:", error);
-        }
-    };
-
-    return (
-        <>
-            <input
-                type="file"
-                id="file-upload"
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
-            />
-            <label htmlFor="file-upload">
-                <Button
-                    component="span"
-                    variant="contained"
-                    startIcon={<CloudUploadIcon />}
-                >
-                    Pobierz
-                </Button>
-            </label>
-            <Button
-                variant="contained"
-                onClick={handleUpload}
-                disabled={!file}
-            >
-                Wyślij
-            </Button>
-        </>
-    );
-}
-
-InputFileUpload.propTypes = {
-    adminId: PropTypes.string.isRequired,
-    onUploadSuccess: PropTypes.func.isRequired,
-};
-
 export function ModalUnstyled(props) {
-
+    const [file, setFile] = useState(null);
+    const storage = getStorage();
     const { open, onClose } = props;
     const [ profileData, setProfileData ] = useState({
         company: '',
@@ -99,6 +36,7 @@ export function ModalUnstyled(props) {
         surname: '',
         email: '',
         phone: '',
+        logoURL: '',
     });
     const location = useLocation();
     const [adminId, setAdminId] = useState('');
@@ -111,8 +49,6 @@ export function ModalUnstyled(props) {
         const id = location.pathname.split("/")[2];
         setAdminId(id);
     }, [location.pathname]);
-
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -157,6 +93,62 @@ export function ModalUnstyled(props) {
         fetchData();
     }, [adminId]);
 
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+    };
+
+    const handleFileRemove = async () => {
+        setFile(null);
+        try {
+            const q = query(collection(db, "admins"), where("adminId", "==", adminId));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                const adminDocRef = querySnapshot.docs[0].ref;
+                await updateDoc(adminDocRef, { logoURL: '' });
+                console.log("Logo URL removed successfully!");
+            } else {
+                console.log("No matching documents!");
+            }
+        } catch (error) {
+            console.error("Error removing logo URL:", error);
+        }
+    };
+
+    const handleUpload = async () => {
+        try {
+            if (!file) {
+                console.error("No file selected!");
+                return;
+            }
+
+            const filePath = `logos/${adminId}/${file.name}`;
+            const fileRef = ref(storage, filePath);
+
+            await uploadBytes(fileRef, file);
+
+            const logoURL = await getDownloadURL(fileRef);
+            console.log("Logo uploaded successfully!");
+
+            setLogoURL(logoURL);
+
+            if (adminId) {
+                const q = query(collection(db, "admins"), where("adminId", "==", adminId));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const adminDocRef = querySnapshot.docs[0].ref;
+                    await updateDoc(adminDocRef, { logoURL });
+                    console.log("Logo URL updated successfully!");
+                } else {
+                    console.log("No matching documents!");
+                }
+            } else {
+                console.log("Invalid adminId!");
+            }
+        } catch (error) {
+            console.error("Error uploading logo:", error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -206,6 +198,7 @@ export function ModalUnstyled(props) {
                         surname: profileData.surname,
                         email: profileData.email,
                         phone: profileData.phone,
+                        logoURL: profileData.logoURL,
                         clientLogin: linkToShare
                     }, { merge: true });
                     console.log("Document successfully updated!");
@@ -227,27 +220,6 @@ export function ModalUnstyled(props) {
         fetchData();
     }, [adminId]);
 
-
-    const handleUploadSuccess = async (url) => {
-        setLogoURL(url);
-        try {
-            if (adminId) {
-                const q = query(collection(db, "admins"), where("adminId", "==", adminId));
-                const querySnapshot = await getDocs(q);
-                if (!querySnapshot.empty) {
-                    const adminDocRef = querySnapshot.docs[0].ref;
-                    await updateDoc(adminDocRef, { logoURL: url });
-                    console.log("Logo URL updated successfully!");
-                } else {
-                    console.log("No matching documents!");
-                }
-            } else {
-                console.log("Invalid adminId!");
-            }
-        } catch (error) {
-            console.error("Error updating logo URL: ", error);
-        }
-    };
 
     return (
         <div>
@@ -282,30 +254,62 @@ export function ModalUnstyled(props) {
                         <TextField name="phone" label="Telefon" defaultValue={profileData.phone} onChange={handleChange}
                                    error={!!errors.phone} helperText={errors.phone}/>
 
+                        <div style={{}}>
+                            <Button variant="contained" onClick={handleSubmit}>Aktualizuj</Button>
+                            <Button variant="contained" onClick={onClose}>Anuluj</Button>
+                        </div>
+
+
                     </form>
 
 
-                    <h3>To jest Twój unikalny link do strony logowania dla Twoich klientów: </h3>
-                    <a href={window.location.href.replace("/admin/", "/client/")}>
-                        {window.location.href.replace("/admin/", "/client/")}
+                    <p>To jest link do strony logowania dla Twoich klientów. Udostępnij go swoim klientom, aby mogli się
+                        zarejestrować oraz zalogować do programu: </p>
+                    <a href={window.location.href.replace("/admin/", "/client/").replace("/dashboard", "")}>
+                        {window.location.href.replace("/admin/", "/client/").replace("/dashboard", "")}
                     </a>
 
-                    <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-
-                        <h3>Dodaj logo firmy do strony logowania Twoich klientów.</h3>
-
-                        <div style={{width: "200px", height: "200px", border: "1px solid gray"}}>
-                            {profileData.logoURL && <img src={profileData.logoURL} alt="Logo"
-                                             style={{maxWidth: "100%", maxHeight: "100px", marginTop: "20px"}}/>}
-                        </div>
-                        <div><InputFileUpload adminId={adminId} onUploadSuccess={handleUploadSuccess}/>
-                        </div>
-
-                    </div>
 
                     <div style={{}}>
-                        <Button variant="contained" onClick={handleSubmit}>Aktualizuj</Button>
-                        <Button variant="contained" onClick={onClose}>Anuluj</Button>
+
+                        <p>Możesz również dodać swoje logo do tej strony, jak również do panelu klienta:</p>
+
+                        <div style={{width: "100px", height: "100px", border: "1px solid gray"}}>
+                            {profileData.logoURL && <img src={profileData.logoURL} alt="Logo"
+                                                         style={{
+                                                             maxWidth: "100%",
+                                                             maxHeight: "100px",
+                                                             marginTop: "20px"
+                                                         }}/>}
+                        </div>
+
+
+                        <input
+                            type="file"
+                            id="file-upload"
+                            style={{display: 'none'}}
+                            onChange={handleFileChange}
+                        />
+                        <label htmlFor="file-upload">
+                            <Button
+                                component="span"
+                                variant="contained"
+                            ><UploadFileIcon/></Button>
+                        </label>
+                        <Button
+                            variant="contained"
+                            onClick={handleUpload}
+                            disabled={!file}
+
+                        >
+                            <PublishIcon/>
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={handleFileRemove}
+                        ><DeleteIcon/>
+                        </Button>
+
                     </div>
 
 

@@ -14,13 +14,13 @@ import { PasswordResetInfo} from "./misc/PasswordResetInfo";
 function App() {
   const user = useAuth();
   console.log(user);
+
   return (
       <Router>
         <div className="App">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/:adminId" element={<AdminPanel />} />
             <Route path="/admin/:adminId/dashboard" element={<AdminPanel />} />
             <Route path="/admin/:adminId/clients" element={<AdminPanel />} />
             <Route path="/admin/:adminId/statistics" element={<AdminPanel />} />

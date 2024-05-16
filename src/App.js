@@ -14,6 +14,7 @@ import { PasswordResetInfo} from "./misc/password-reset-info";
 function App() {
   const user = useAuth();
   console.log(user);
+
   return (
       <Router>
         <div className="app">

@@ -1,5 +1,5 @@
 import React from "react";
-import { CollapsibleTable} from "./client-list";
+import { CollapsibleTable } from "./client-list";
 
 export const Clients = () => {
 

@@ -2,13 +2,18 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase/config';
-import { PasswordResetForm } from "../misc/PasswordResetForm";
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import {
+    collection,
+    getDocs,
+    query,
+    where
+} from 'firebase/firestore';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import TextField from "@mui/material/TextField";
+import { PasswordResetForm } from "../misc/password-reset-form";
 
-
+// Component for administrator login
 export const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,11 +21,13 @@ export const AdminLogin = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    // Dictionary of errors in Polish
     const errorsPL = {
         'auth/invalid-email': 'Nie wpisano emaila lub email jest niepoprawny.',
         'auth/invalid-credential': 'Email lub hasło jest niepoprawne.',
     };
 
+    // Function for signing in
         const signIn = async () => {
         try {
             const adminsCollectionRef = collection(db, 'admins');
@@ -41,11 +48,13 @@ export const AdminLogin = () => {
         }
     }
 
+    // Function for resetting password
     const passwordReset = () => {
         navigate("/admin/password-reset");
         return <PasswordResetForm/>
     }
 
+    // Enabling signing in by using Enter
     const handleKeyPress = (e) => {
         if (e.key === "Enter") {
             signIn();
@@ -68,7 +77,7 @@ export const AdminLogin = () => {
             />
             <Button variant="contained" onClick={signIn}>Zaloguj się</Button>
             <p onClick={passwordReset} style={{ cursor: "pointer", color: "blue" }}>Nie pamiętam hasła</p>
-            {error && <p>{error}</p>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
         </Paper>
     )
 }

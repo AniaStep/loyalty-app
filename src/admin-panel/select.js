@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -6,8 +6,9 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 export function BasicSelectClientForm({ onChange }) {
-    const [text, setText] = React.useState('');
+    const [text, setText] = useState('');
 
+    //Function to handle option selection
     const handleChange = (event) => {
         const selectedOption = event.target.value;
         setText(selectedOption);

@@ -1,13 +1,13 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { ChartsOverviewDemo } from "./charts";
+import { ChartSection } from "./chart-section";
 import { WelcomeInfoCard } from "./dashboard-summary";
-import { useNavigate, useLocation } from "react-router-dom";
 
+
+// Defining styles for the Paper component
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
     ...theme.typography.body2,
@@ -16,74 +16,56 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
+// Function creating a basic grid layout for Dashboard component
 function BasicGrid() {
-
     const itemStyle = {
-        height: "80vh",
+        height: "550px",
         marginTop: 20,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
+        color: "black"
     }
 
     return (
-        <>
-            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', xl: 'flex' }}}>
+        <div className="dashboard-container">
+            <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex', xl: 'flex'}}}>
                 <Grid container spacing={2}>
                     <Grid item xl={4} md={4}>
                         <Item style={itemStyle}>
-                            <WelcomeInfoCard />
+                            <WelcomeInfoCard/>
                         </Item>
                     </Grid>
                     <Grid item xl={8} md={8}>
                         <Item style={itemStyle}>
-                            <ChartSection />
+                            <ChartSection/>
                         </Item>
                     </Grid>
                 </Grid>
             </Box>
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none', xl: 'none' }, flexDirection: "column"}}>
+            <Box sx={{flexGrow: 1, display: {xs: 'flex', md: 'none', xl: 'none'}, flexDirection: "column"}}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
                         <Item style={itemStyle}>
-                            <WelcomeInfoCard />
+                            <WelcomeInfoCard/>
                         </Item>
                     </Grid>
                 </Grid>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
                         <Item style={itemStyle}>
-                            <ChartSection />
+                            <ChartSection/>
                         </Item>
                     </Grid>
                 </Grid>
             </Box>
-        </>
+        </div>
     );
 }
-
-
-const ChartSection = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const goToStatistics = () => {
-        const adminId = location.pathname.split("/")[2];
-        navigate(`/admin/${adminId}/statistics`);
-    };
-
-    return (
-        <>
-            <h1>Liczba transakcji</h1>
-            <div><ChartsOverviewDemo/></div>
-            <Button variant="contained" onClick={goToStatistics}> Więcej statystyk </Button>
-        </>
-    )
-}
-
 
 export function Dashboard() {
 
     return (
-        <div> <BasicGrid/></div>
+        <div><BasicGrid/></div>
     );
 }

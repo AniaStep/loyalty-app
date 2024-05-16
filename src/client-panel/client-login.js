@@ -1,28 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import {
+    addDoc,
+    collection,
+    getDocs,
+    query,
+    where
+} from "firebase/firestore";
 import { auth, db } from "../firebase/config";
-import { PageNotFound } from "../misc/PageNotFound";
-import { PasswordResetForm } from "../misc/PasswordResetForm";
+import { PageNotFound } from "../misc/page-not-found";
+import { PasswordResetForm } from "../misc/password-reset-form";
 import Paper from '@mui/material/Paper';
-import TextField from "@mui/material/TextField";
 import Button from '@mui/material/Button';
+import TextField from "@mui/material/TextField";
 
+
+// Component for client login
 export const ClientLogin = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
-    const [isAdminValid, setIsAdminValid] = useState(true);
-    const [adminsLogoURL, setAdminsLogoURL] = useState("");
-
-
+    const [ email, setEmail ] = useState('');
+    const [ password, setPassword ] = useState('');
+    const [ error, setError ] = useState(null);
+    const [ isAdminValid, setIsAdminValid ] = useState(true);
+    const [ adminsLogoURL, setAdminsLogoURL ] = useState("");
     const navigate = useNavigate();
     const location = useLocation();
     const adminCollectionRef = collection(db, 'admins');
     const clientCollectionRef = collection(db, 'clients');
     const adminId = location.pathname.split("/")[2];
 
+    // Dictionary of errors in Polish
     const errorsPL = {
         'auth/invalid-email': 'Nie wpisano emaila lub email jest niepoprawny.',
         'auth/invalid-credential': 'Email lub hasło jest niepoprawne.',
@@ -30,6 +37,7 @@ export const ClientLogin = () => {
         'auth/weak-password': 'Upewnij się, że hasło ma co najmniej 6 znaków.',
     };
 
+    // Effect to check if admin exists in admins collection
     useEffect(() => {
         const checkAdminValidity = async () => {
             try {
@@ -46,6 +54,7 @@ export const ClientLogin = () => {
         checkAdminValidity();
     }, [adminCollectionRef, adminId]);
 
+    //Effect to fetch admins logoURL from admins collection
     useEffect(() => {
         const fetchAdminData = async () => {
             try {
@@ -56,8 +65,6 @@ export const ClientLogin = () => {
                 if (adminsData) {
                     setAdminsLogoURL(adminsData.logoURL);
                 }
-
-
             } catch (error) {
                 console.error(error);
             }
@@ -66,8 +73,9 @@ export const ClientLogin = () => {
         fetchAdminData();
     }, [adminId]);
 
-
-    const SignUp = async () => {
+    // Function to sign up a new client
+    const signUp = async () => {
+        const currentDate = new Date().toISOString();
         if (!isAdminValid) {
             return;
         }
@@ -76,21 +84,35 @@ export const ClientLogin = () => {
             const docRef = await addDoc(clientCollectionRef, {
                 email: email,
                 adminId: adminId,
-                clientId: userCredential.user.uid, // Use userCredential to access the user's UID
+                clientId: userCredential.user.uid,
+                dateFrom: currentDate,
+                adminName: "",
+                discount: false,
+                gained: 0,
+                lastShopping: "-",
+                totalPoints: 0,
+                totalValue: "-",
+                totalValueNum: 0,
             });
-            navigate(`/client/${adminId}/${docRef.id}`);
+            navigate(`/client/${adminId}/${userCredential.user.uid}`);
         } catch (err) {
             setError(errorsPL[err.code] || 'Wystąpił błąd podczas logowania.');
             console.error(err);
         }
     };
 
-    const SignIn = async () => {
+    // Function to sign in a client
+    const signIn = async () => {
         if (!isAdminValid) {
             return;
         }
 
         try {
+            const clientSnapshot = await getDocs(query(clientCollectionRef, where("email", "==", email), where("adminId", "==", adminId)));
+            if (clientSnapshot.empty) {
+                setError("Podany email nie jest przypisany do konta klienta.");
+                return;
+            }
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             navigate(`/client/${adminId}/${userCredential.user.uid}`);
         } catch (err) {
@@ -99,16 +121,22 @@ export const ClientLogin = () => {
         }
     };
 
-
     if (!isAdminValid) {
         return <PageNotFound />;
     }
 
+    // Function to handle password reset
     const passwordReset = () => {
         navigate(`/client/${adminId}/password-reset`);
         return <PasswordResetForm/>
     }
 
+    // Enabling signing in by using Enter
+    const handleKeyPress = (e) => {
+        if (e.key === "Enter") {
+            signIn();
+        }
+    };
 
     return (
         <div>
@@ -119,15 +147,17 @@ export const ClientLogin = () => {
                 </div>
                 <TextField className="login-input"
                            placeholder="email"
-                           onChange={(e) => setEmail(e.target.value)}/>
+                           onChange={(e) => setEmail(e.target.value)}
+                           onKeyDown={handleKeyPress}/>
                 <TextField className="login-input"
                            placeholder="hasło"
                            type="password"
-                           onChange={(e) => setPassword(e.target.value)}/>
-                <Button variant="contained" onClick={SignIn}>Zaloguj się</Button>
+                           onChange={(e) => setPassword(e.target.value)}
+                           onKeyDown={handleKeyPress}/>
+                <Button variant="contained" onClick={signIn}>Zaloguj się</Button>
                 <p onClick={passwordReset} style={{cursor: "pointer", color: "blue"}}>Nie pamiętam hasła</p>
-                {error && <p>{error}</p>}
-                <p>Nie masz konta? Wypełnij pola i <span onClick={SignUp} style={{cursor: "pointer", color: "blue"}}>zarejestruj się</span>
+                {error && <p style={{ color: "red" }}>{error}</p>}
+                <p>Nie masz konta? Wypełnij powyższe pola i <span onClick={signUp} style={{cursor: "pointer", color: "blue"}}>zarejestruj się</span>
                 </p>
             </Paper>
         </div>

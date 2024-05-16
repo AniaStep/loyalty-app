@@ -1,38 +1,157 @@
-.App {
+:root {
+  --bg-color: #e0f0ff;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  height: auto;
+  background-color: var(--bg-color);
+  padding: 0;
+}
+
+.app {
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+/*Authentication*/
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.login-form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 20px;
+  width: 500px;
+  height: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 50px;
+}
+
+.login-input {
+  width: 90%;
+}
+
+.login-logo img {
+  height: 100px;
+  width: 100px;
+}
+
+.password-reset-button {
+  color: white;
+  background-color: #0072E5;
+  border: 1px solid #0072E5;
+  border-radius: 7px;
+  padding: 10px 20px;
+  text-transform: uppercase;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.password-reset-logo img {
+  width: 100px;
+  height: 100px;
+}
+
+/*Admin and client panels*/
+
+.admin-panel,
+.client-panel {
+  height: 100%;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.settings-icon {
+  font-size: 50px;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.dashboard-chart {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.dashboard-container {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.admin-settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 400px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.logo-section {
+  display: flex;
+  gap: 10px;
+}
+
+.logo-container {
+  display: flex;
+  width: 120px;
+  height: 120px;
+  border: 1px dashed #e8e8f0;
+  border-radius: 3px;
+  align-items: center;
+  justify-content: center;
+  color: grey;
+}
+
+.logo {
+  max-width: 120px;
+  height: auto;
+  margin-top: 20px;
+}
+
+.logo-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: space-between;
+}
+
+.admin-settings-subtitle {
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.admin-settings-custom {
+  width: 400px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 40px;
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+
+.admin-settings-custom a {
+  word-wrap: break-word;
+  font-style: italic;
+}
+
+.welcome-info-card {
+  display: flex;
+  justify-content: center;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-style: italic;
+}
+
+.welcome-info-card .benefits {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }

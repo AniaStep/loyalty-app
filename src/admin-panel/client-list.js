@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import { db } from '../firebase/config';
-import { collection, getDocs, query, where, doc, getDoc, onSnapshot, updateDoc  } from "firebase/firestore";
-import { useAuth } from "../firebase/AuthProvider";
+import {
+    collection,
+    getDocs,
+    query,
+    where,
+    doc,
+    getDoc,
+    onSnapshot,
+    updateDoc
+} from "firebase/firestore";
+import { useAuth } from "../firebase/auth-provider";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
@@ -20,9 +29,11 @@ import Typography from '@mui/material/Typography';
 import Collapse from '@mui/material/Collapse';
 import TableCell from '@mui/material/TableCell';
 import TextField from '@mui/material/TextField';
-import { ModalUnstyled as ModalUnstyledEditClientData } from "./client-record-edition";
-import { ModalUnstyled as ModalUnstyledAddClient } from "./client-record-new";
+import { ClientRecordEditionModal } from "./client-record-edition";
+import { ClientRecordNewModal } from "./client-record-new";
 
+
+// Function to create row data
 function createData(id, name, surname, email, dateFrom, lastShopping, totalPoints, totalValue) {
     return {
         id,
@@ -37,9 +48,9 @@ function createData(id, name, surname, email, dateFrom, lastShopping, totalPoint
     };
 }
 
+// Function to format date
 function formatDate(timestamp) {
     if (!timestamp) return "";
-
     let date;
     if (typeof timestamp === 'object') {
         const { seconds = 0, nanoseconds = 0 } = timestamp;
@@ -55,6 +66,7 @@ function formatDate(timestamp) {
     return `${day}-${month}-${year}`;
 }
 
+// Row component
 const Row = ({ row, clientHistory, openModal }) => {
     const [open, setOpen] = React.useState(false);
 
@@ -95,16 +107,16 @@ const Row = ({ row, clientHistory, openModal }) => {
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 1 }}>
                             <Typography variant="h6" gutterBottom component="div">
-                                Aktualizacja punktów
+                                Historia
                             </Typography>
                             <Table size="small" aria-label="purchases">
                                 <TableHead>
-                                    <TableRow>
-                                        <TableCell>Data</TableCell>
-                                        <TableCell>Wydana suma (PLN)</TableCell>
-                                        <TableCell>Przyznane punkty</TableCell>
-                                        <TableCell>Wykorzystane punkty</TableCell>
-                                        <TableCell>Aktualna ilość punktów</TableCell>
+                                    <TableRow style={{backgroundColor: "#dae9fa"}}>
+                                        <TableCell><Typography variant="h7" style={{fontWeight: 'bold'}}>Data</Typography></TableCell>
+                                        <TableCell><Typography variant="h7" style={{fontWeight: 'bold'}}>Wydana suma (PLN)</Typography></TableCell>
+                                        <TableCell><Typography variant="h7" style={{fontWeight: 'bold'}}>Przyznane punkty</Typography></TableCell>
+                                        <TableCell><Typography variant="h7" style={{fontWeight: 'bold'}}>Wykorzystane punkty</Typography></TableCell>
+                                        <TableCell><Typography variant="h7" style={{fontWeight: 'bold'}}>Aktualna ilość punktów</Typography></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -129,6 +141,7 @@ const Row = ({ row, clientHistory, openModal }) => {
     );
 };
 
+// Prop types for Row component
 Row.propTypes = {
     row: PropTypes.shape({
         id: PropTypes.number.isRequired,
@@ -153,19 +166,21 @@ Row.propTypes = {
     openModal: PropTypes.func.isRequired,
 };
 
+// Main component (list of clients)
 export function CollapsibleTable() {
+    const user = useAuth();
+    const [adminId, setAdminId] = useState(null);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [rows, setRows] = React.useState([]);
-    const [adminId, setAdminId] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const user = useAuth();
     const [clientHistory, setClientHistory] = useState({});
     const [filteredRows, setFilteredRows] = React.useState([]);
     const [selectedClient, setSelectedClient] = React.useState(null);
     const [modalOpenEdit, setModalOpenEdit] = React.useState(false);
     const [modalOpenNew, setModalOpenNew] = React.useState(false);
 
+    // Fetch data and set state
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -208,9 +223,9 @@ export function CollapsibleTable() {
             }
 
         };
-
         fetchData();
 
+        // Subscribing to changes in loyaltyRules collection
         const unsubscribe = onSnapshot(collection(db, "loyaltyRules"), async (snapshot) => {
             try {
                 const loyaltyRules = snapshot.docs.map(doc => doc.data())[0];
@@ -248,7 +263,6 @@ export function CollapsibleTable() {
                     }
                 });
 
-
             } catch (err) {
                 console.error(err);
             }
@@ -258,15 +272,19 @@ export function CollapsibleTable() {
 
     }, [user]);
 
+    // Filter rows based on search term
     useEffect(() => {
-        const filtered = rows.filter(
-            (row) =>
-                row.surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                row.email.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredRows(filtered);
+        if (rows && rows.length > 0) {
+            const filtered = rows.filter(
+                (row) =>
+                    (row.surname && row.surname.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    row.email.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredRows(filtered);
+        }
     }, [searchTerm, rows]);
 
+    // Pagination event handlers
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
@@ -276,7 +294,7 @@ export function CollapsibleTable() {
         setPage(0);
     };
 
-
+    // Modal handlers
     const openModal = (client) => {
         if (client) {
             setSelectedClient(client);
@@ -306,13 +324,13 @@ export function CollapsibleTable() {
     }
 
     return (
-        <div>
+        <div style={{paddingLeft: "30px", paddingRight: "30px" }}>
             <div style={{
                 display: "flex",
                 gap: "10px",
                 justifyContent: "flex-end",
                 paddingTop: "20px",
-                paddingBottom: "30px"
+                paddingBottom: "30px",
             }}>
                 <TextField
                     label="Szukaj"
@@ -325,17 +343,17 @@ export function CollapsibleTable() {
             <TableContainer component={Paper}>
                 <Table aria-label="collapsible table">
                     <TableHead>
-                        <TableRow>
+                        <TableRow style={{ backgroundColor: '#c8d4eb' }}>
                             <TableCell/>
                             <TableCell/>
-                            <TableCell>ID</TableCell>
-                            <TableCell align="right">Imię</TableCell>
-                            <TableCell align="right">Nazwisko</TableCell>
-                            <TableCell align="right">Email</TableCell>
-                            <TableCell align="right">Data rejestracji</TableCell>
-                            <TableCell align="right">Ostatnie zakupy</TableCell>
-                            <TableCell align="right">Punkty</TableCell>
-                            <TableCell align="right">Wartość zakupów</TableCell>
+                            <TableCell><Typography variant="h7" style={{fontWeight: 'bold'}}>ID</Typography></TableCell>
+                            <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Imię</Typography></TableCell>
+                            <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Nazwisko</Typography></TableCell>
+                            <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Email</Typography></TableCell>
+                            <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Data rejestracji</Typography></TableCell>
+                            <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Ostatnie zakupy</Typography></TableCell>
+                            <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Punkty</Typography></TableCell>
+                            <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Wartość zakupów</Typography></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -356,8 +374,8 @@ export function CollapsibleTable() {
                 labelRowsPerPage="Liczba rzędów"
                 labelDisplayedRows={({ from, to, count }) => `${from}–${to} z ${count}`}
             />
-            <ModalUnstyledEditClientData open={modalOpenEdit} onClose={handleCloseModalEdit} selectedClient={selectedClient} />
-            <ModalUnstyledAddClient open={modalOpenNew} onClose={handleCloseModalNew} />
+            <ClientRecordEditionModal open={modalOpenEdit} onClose={handleCloseModalEdit} selectedClient={selectedClient} />
+            <ClientRecordNewModal open={modalOpenNew} onClose={handleCloseModalNew} />
         </div>
     );
 }

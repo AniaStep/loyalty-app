@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from "../firebase/AuthProvider";
-import { db } from '../firebase/config';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useLocation } from "react-router-dom";
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import { LineChart } from '@mui/x-charts/LineChart';
-import { useNavigate, useLocation } from "react-router-dom";
+import { db } from '../firebase/config';
+import {
+    collection,
+    query,
+    where,
+    getDocs
+} from 'firebase/firestore';
 
-
-export function ChartsOverviewDemo() {
+export function DashboardChart() {
     const location = useLocation();
     const adminId = location.pathname.split("/")[2];
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [chartData, setChartData] = useState([]);
 
+    // useEffect hook to fetch transaction data from the Firestore database based on the admin ID, selected month, and selected year
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -44,6 +50,7 @@ export function ChartsOverviewDemo() {
     }, [adminId, selectedMonth, selectedYear]);
 
 
+    // Function to generate chart data based on transactions count map, selected month, and selected year
     const generateChartData = (transactionsCountMap, selectedMonth, selectedYear) => {
         const chartData = [];
         const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
@@ -57,17 +64,21 @@ export function ChartsOverviewDemo() {
 
     return (
         <>
-            <div style={{display: 'flex', justifyContent: "flex-end", gap: '2px'}}>
-            <select value={selectedMonth} onChange={(e) => setSelectedMonth(parseInt(e.target.value))}>
-                {Array.from({ length: 12 }, (_, i) => (
-                    <option key={i} value={i}>{new Date(0, i).toLocaleDateString('default', { month: 'long' })}</option>
-                ))}
-            </select>
-            <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
-                {Array.from({ length: 5 }, (_, i) => (
-                    <option key={i} value={new Date().getFullYear() - i}>{new Date().getFullYear() - i}</option>
-                ))}
-            </select>
+            <div className="dashboard-chart">
+                <Select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}>
+                    {Array.from({ length: 12 }, (_, i) => (
+                        <MenuItem key={i} value={i}>{new Date(0, i).toLocaleDateString('default', { month: 'long' })}</MenuItem>
+                    ))}
+                </Select>
+                <Select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
+                    {Array.from({ length: 5 }, (_, i) => (
+                        <MenuItem key={i} value={new Date().getFullYear() - i}>{new Date().getFullYear() - i}</MenuItem>
+                    ))}
+                </Select>
             </div>
             <LineChart
                 series={[{ data: chartData.map(item => item.transactions), label: "Liczba transakcji"}]}

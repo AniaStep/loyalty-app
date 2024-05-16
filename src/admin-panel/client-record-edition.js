@@ -1,36 +1,40 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { styled, css } from '@mui/system';
-import { Modal as BaseModal } from '@mui/base/Modal';
+import React, { useState } from 'react';
+import { Modal, StyledBackdrop, ModalContent } from '../misc/MUI-modal-styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
-import { updateDoc, query, where, getDocs, collection, deleteDoc, addDoc, doc } from 'firebase/firestore';
+import {
+    updateDoc,
+    query,
+    where,
+    getDocs,
+    collection,
+    deleteDoc,
+    addDoc
+} from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
-import { BasicSelectClientForm} from "./select";
+import { BasicSelectClientForm } from "./select";
 
 
-export function ModalUnstyled(props) {
+export function ClientRecordEditionModal(props) {
     const { open, onClose, selectedClient } = props;
-    const [selectedOption, setSelectedOption] = React.useState('');
-    const [updatedClientData, setUpdatedClientData] = React.useState({});
-    const [originalClientData, setOriginalClientData] = React.useState({});
-    const [historyRecord, setHistoryRecord] = React.useState({});
+    const [ selectedOption, setSelectedOption ] = useState('');
+    const [ updatedClientData, setUpdatedClientData ] = useState({});
+    const [ errors, setErrors ] = React.useState({});
     const location = useLocation();
     const adminId = location.pathname.split("/")[2];
     const currentDate = new Date().toISOString();
-    const [lastShopping, setLastShopping] = React.useState({});
-    const [errors, setErrors] = React.useState({});
 
+    // Effect hook to update client data
     React.useEffect(() => {
         setUpdatedClientData(selectedClient);
         resetChanges();
     }, [selectedClient]);
 
+    // Function to reset form changes
     const resetChanges = () => {
         setSelectedOption('');
         setUpdatedClientData(prevState => ({
@@ -42,6 +46,7 @@ export function ModalUnstyled(props) {
         setErrors({});
     };
 
+    // Function to handle field change
     const handleFieldChange = (field, value) => {
         if (errors[field]) {
             setErrors(prevErrors => ({
@@ -78,6 +83,7 @@ export function ModalUnstyled(props) {
         }
     };
 
+    // Function to handle saving changes
     const handleSaveChanges = async () => {
         try {
             if (updatedClientData.email !== selectedClient.email) {
@@ -173,30 +179,35 @@ export function ModalUnstyled(props) {
         onClose()
     };
 
-
+    // Function to handle deleting a client
     const handleDeleteClient = async (clientId) => {
         try {
-            const clientsQuery = query(collection(db, 'clients'), where('email', '==', selectedClient.email));
-            const querySnapshot = await getDocs(clientsQuery);
+            const confirmation = window.confirm("Czy na pewno chcesz usunąć tego klienta?");
 
-            querySnapshot.forEach(async (doc) => {
-                try {
-                    await deleteDoc(doc.ref);
-                    onClose()
-                } catch (err) {
-                    console.error(err);
-                }
-            });
+            if (confirmation) {
+                const clientsQuery = query(collection(db, 'clients'), where('email', '==', selectedClient.email));
+                const querySnapshot = await getDocs(clientsQuery);
 
+                querySnapshot.forEach(async (doc) => {
+                    try {
+                        await deleteDoc(doc.ref);
+                        onClose()
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+            }
         } catch (err) {
             console.error(err);
         }
     }
 
+    // Function to handle change in the select dropdown
     const handleSelectChange = (option) => {
         setSelectedOption(option);
     };
 
+    // Function to reset the form fields and close the modal
     const resetForm = () => {
         resetChanges();
         onClose();
@@ -267,123 +278,3 @@ export function ModalUnstyled(props) {
         </div>
     );
 }
-
-const Backdrop = React.forwardRef((props, ref) => {
-    const {open, className, ...other} = props;
-    return (
-        <div
-            className={clsx({'base-Backdrop-open': open}, className)}
-            ref={ref}
-            {...other}
-        />
-    );
-});
-
-Backdrop.propTypes = {
-    className: PropTypes.string.isRequired,
-    open: PropTypes.bool,
-};
-
-const blue = {
-    200: '#99CCFF',
-    300: '#66B2FF',
-    400: '#3399FF',
-    500: '#007FFF',
-    600: '#0072E5',
-    700: '#0066CC',
-};
-
-const grey = {
-    50: '#F3F6F9',
-    100: '#E5EAF2',
-    200: '#DAE2ED',
-    300: '#C7D0DD',
-    400: '#B0B8C4',
-    500: '#9DA8B7',
-    600: '#6B7A90',
-    700: '#434D5B',
-    800: '#303740',
-    900: '#1C2025',
-};
-
-const Modal = styled(BaseModal)`
-  position: fixed;
-  z-index: 1300;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const StyledBackdrop = styled(Backdrop)`
-  z-index: -1;
-  position: fixed;
-  inset: 0;
-  background-color: rgb(0 0 0 / 0.5);
-  -webkit-tap-highlight-color: transparent;
-`;
-
-const ModalContent = styled('div')(
-    ({ theme }) => css`
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 500;
-    text-align: start;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow: hidden;
-    background-color: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-    border-radius: 8px;
-    border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-    box-shadow: 0 4px 12px
-      ${theme.palette.mode === 'dark' ? 'rgb(0 0 0 / 0.5)' : 'rgb(0 0 0 / 0.2)'};
-    padding: 24px;
-    color: ${theme.palette.mode === 'dark' ? grey[50] : grey[900]};
-
-    & .modal-title {
-      margin: 0;
-      line-height: 1.5rem;
-      margin-bottom: 8px;
-    }
-
-    & .modal-description {
-      margin: 0;
-      line-height: 1.5rem;
-      font-weight: 400;
-      color: ${theme.palette.mode === 'dark' ? grey[400] : grey[800]};
-      margin-bottom: 4px;
-    }
-  `,
-);
-
-const TriggerButton = styled('button')(
-    ({ theme }) => css`
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 600;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    padding: 8px 16px;
-    border-radius: 8px;
-    transition: all 150ms ease;
-    cursor: pointer;
-    background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-    border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-    color: ${theme.palette.mode === 'dark' ? grey[200] : grey[900]};
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-
-    &:hover {
-      background: ${theme.palette.mode === 'dark' ? grey[800] : grey[50]};
-      border-color: ${theme.palette.mode === 'dark' ? grey[600] : grey[300]};
-    }
-
-    &:active {
-      background: ${theme.palette.mode === 'dark' ? grey[700] : grey[100]};
-    }
-
-    &:focus-visible {
-      box-shadow: 0 0 0 4px ${theme.palette.mode === 'dark' ? blue[300] : blue[200]};
-      outline: none;
-    }
-  `,
-);

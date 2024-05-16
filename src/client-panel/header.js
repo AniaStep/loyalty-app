@@ -4,22 +4,27 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import { ModalUnstyled as AccountModal } from "./account";
+import Container from '@mui/material/Container';
+import Button from '@mui/material/Button';
+import SettingsIcon from '@mui/icons-material/Settings';
+import Menu from '@mui/material/Menu';
+import Tooltip from '@mui/material/Tooltip';
+import { AccountModal } from "./account";
 import { signOut } from "firebase/auth";
-import {auth, db} from "../firebase/config";
-import {useLocation, useNavigate} from "react-router-dom";
-import { where, query, collection, getDocs } from 'firebase/firestore';
+import { auth, db } from "../firebase/config";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+    where,
+    query,
+    collection,
+    getDocs
+} from 'firebase/firestore';
+
 
 const pages = [];
 const settings = ['Konto','Wyloguj'];
-
 
 export function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -32,7 +37,7 @@ export function ResponsiveAppBar() {
     const adminId = location.pathname.split("/")[2];
     const clientId = location.pathname.split("/")[3];
 
-
+    // Function to handle logout
     const logout = async () => {
         try {
             await signOut(auth);
@@ -42,18 +47,22 @@ export function ResponsiveAppBar() {
         }
     };
 
-
+    // Function to open navigation menu
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
+
+    // Function to open user menu
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
     };
 
+    // Function to close navigation menu
     const handleCloseNavMenu = () => {
         setAnchorElNav(null);
     };
 
+    // Function to close user menu
     const handleCloseUserMenu = (event) => {
         if (event.currentTarget.textContent === 'Wyloguj') {
             logout(navigate);
@@ -64,7 +73,7 @@ export function ResponsiveAppBar() {
         setAnchorElUser(null);
     };
 
-
+    // Effect to fetch client data
     useEffect(() => {
         const fetchClientData = async () => {
             try {
@@ -122,7 +131,6 @@ export function ResponsiveAppBar() {
                     >
                         {adminName && adminName }
                     </Typography>
-
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
@@ -159,13 +167,10 @@ export function ResponsiveAppBar() {
                             ))}
                         </Menu>
                     </Box>
-
-
                     <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }}
                          style={{width: "45px", height: "45px"}}>
                         {logoURL && <img src={logoURL} alt="Logo" style={{ width: "100%", height: "100%" , borderRadius: "50%"}} />}
                     </Box>
-
                     <Typography
                         variant="h5"
                         noWrap
@@ -195,11 +200,10 @@ export function ResponsiveAppBar() {
                             </Button>
                         ))}
                     </Box>
-
                     <Box sx={{ flexGrow: 0 }}>
                         <Tooltip title="Ustawienia">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar src="/broken-image.jpg" />
+                                <SettingsIcon className="settings-icon"/>
                             </IconButton>
                         </Tooltip>
                         <Menu

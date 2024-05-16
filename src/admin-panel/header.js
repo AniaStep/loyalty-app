@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -7,20 +7,20 @@ import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import FilterVintageIcon from '@mui/icons-material/FilterVintage';
 import {useLocation, useNavigate} from "react-router-dom";
-import { ModalUnstyled as ModalUnstyledLoyaltyRules } from "./loyalty-rules";
-import { ModalUnstyled as ModalUnstyledAdminSettings } from "./admin-settings";
-import { ModalUnstyled as ModalUnstyledProducts } from "./products";
+import { LoyaltyRulesModal } from "./loyalty-rules";
+import { AdminSettingsModal } from "./admin-settings";
+import { ProductsModal } from "./products";
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const pages = ['Pulpit', 'Klienci', 'Statystyki'];
-const settings = ['Mój profil', 'Konfiguracja', 'Oferta produktowa', 'Wyloguj'];
+const settings = ['Konto', 'Konfiguracja', 'Oferta produktowa', 'Wyloguj'];
 
+// Function to handle logout
 const logout = async (navigate) => {
     try {
         navigate("/admin");
@@ -30,24 +30,26 @@ const logout = async (navigate) => {
 };
 
 export function ResponsiveAppBar() {
-    const [anchorElNav, setAnchorElNav] = React.useState(null);
-    const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const [ anchorElNav, setAnchorElNav ] = useState(null);
+    const [ anchorElUser, setAnchorElUser ] = useState(null);
+    const [ openLoyaltyRules, setOpenLoyaltyRules ] = useState(false);
+    const [ openProfile, setOpenProfile ] = useState(false);
+    const [ openProducts, setOpenProducts ] = useState(false);
     const navigate = useNavigate();
-    const [openLoyaltyRules, setOpenLoyaltyRules] = React.useState(false);
-    const [openProfile, setOpenProfile] = React.useState(false);
-    const [openProducts, setOpenProducts] = React.useState(false);
     const location = useLocation();
     const adminId = location.pathname.split("/")[2];
 
+    // Function to handle opening navigation menu
     const handleOpenNavMenu = (event) => {
-
         setAnchorElNav(event.currentTarget);
     };
 
+    // Function to handle opening user menu
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
     };
 
+    // Function to handle closing navigation menu
     const handleCloseNavMenu = (event) => {
         if (event.currentTarget.textContent === 'Pulpit') {
             navigate(`/admin/${adminId}/dashboard`);
@@ -61,11 +63,12 @@ export function ResponsiveAppBar() {
         setAnchorElNav(null);
     };
 
+    // Function to handle closing user menu
     const handleCloseUserMenu = (event) => {
         if (event.currentTarget.textContent === 'Wyloguj') {
             logout(navigate);
         }
-        if (event.currentTarget.textContent === 'Mój profil') {
+        if (event.currentTarget.textContent === 'Konto') {
             setOpenProfile(true);
         }
         if (event.currentTarget.textContent === 'Konfiguracja') {
@@ -79,14 +82,13 @@ export function ResponsiveAppBar() {
 
     return (
         <AppBar position="static">
-            <Container maxWidth="xl">
+            <Container maxWidth="xl" className="header">
                 <Toolbar disableGutters>
-                    <FilterVintageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                    {/*<FilterVintageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />*/}
                     <Typography
                         variant="h6"
                         noWrap
                         component="a"
-                        // href="#app-bar-with-responsive-menu"
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -97,7 +99,7 @@ export function ResponsiveAppBar() {
                             textDecoration: 'none',
                         }}
                     >
-                        LOGO
+                        LoyalApp
                     </Typography>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -136,12 +138,11 @@ export function ResponsiveAppBar() {
                             ))}
                         </Menu>
                     </Box>
-                    <FilterVintageIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                    {/*<FilterVintageIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />*/}
                     <Typography
                         variant="h5"
                         noWrap
                         component="a"
-                        // href="#app-bar-with-responsive-menu"
                         sx={{
                             mr: 2,
                             display: { xs: 'flex', md: 'none' },
@@ -153,7 +154,7 @@ export function ResponsiveAppBar() {
                             textDecoration: 'none',
                         }}
                     >
-                        LOGO
+                        LoyalApp
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
@@ -171,7 +172,7 @@ export function ResponsiveAppBar() {
                         <Tooltip title="Ustawienia">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                 {/*<Avatar src="/broken-image.jpg" />*/}
-                                <SettingsIcon style={{fontSize: "30px", color: "white"}}/>
+                                <SettingsIcon className="settings-icon"/>
                             </IconButton>
                         </Tooltip>
 
@@ -201,9 +202,9 @@ export function ResponsiveAppBar() {
                 </Toolbar>
             </Container>
 
-            <ModalUnstyledLoyaltyRules open={openLoyaltyRules} onClose={() => setOpenLoyaltyRules(false)} />
-            <ModalUnstyledAdminSettings open={openProfile} onClose={() => setOpenProfile(false)} />
-            <ModalUnstyledProducts open={openProducts} onClose={() => setOpenProducts(false)} />
+            <LoyaltyRulesModal open={openLoyaltyRules} onClose={() => setOpenLoyaltyRules(false)} />
+            <AdminSettingsModal open={openProfile} onClose={() => setOpenProfile(false)} />
+            <ProductsModal open={openProducts} onClose={() => setOpenProducts(false)} />
 
         </AppBar>
     );

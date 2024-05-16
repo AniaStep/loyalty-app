@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase/config';
-import { useAuth } from "../firebase/AuthProvider";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -10,24 +9,26 @@ import Paper from '@mui/material/Paper';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TableCell from '@mui/material/TableCell';
-import { ModalUnstyled as ModalUnstyledProductEdit } from './product-record-edition';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import Typography from "@mui/material/Typography";
+import {
+    collection,
+    getDocs,
+    deleteDoc,
+    doc
+} from 'firebase/firestore';
+import { ProductRecordEditionModal } from './product-record-edition';
 
-
+// Function to create row data
 function createData(name, priceRegular, priceReduced) {
     return { name, priceRegular, priceReduced };
 }
 
-const rows = [
-];
-
 export function DenseTable() {
+    const [ openEditModal, setOpenEditModal ] = useState(false);
+    const [ selectedProduct, setSelectedProduct ] = useState(null);
+    const [ products, setProducts ] = useState([]);
 
-    const [openEditModal, setOpenEditModal] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [products, setProducts] = useState([]);
-    const user = useAuth();
-
+    // Function to fetch the list of products from the database
     const fetchProducts = async () => {
         try {
             const querySnapshot = await getDocs(collection(db, 'products'));
@@ -41,15 +42,18 @@ export function DenseTable() {
         }
     };
 
+    // Hook to fetch products when component mounts
     useEffect(() => {
         fetchProducts();
     }, []);
 
+    // Function to handles the click event for editing a product
     const handleEditClick = (product) => {
         setSelectedProduct(product);
         setOpenEditModal(true);
     };
 
+    // Function to handles the click event for deleting a product
     const handleDeleteClick = async (productName) => {
         try {
             const querySnapshot = await getDocs(collection(db, 'products'));
@@ -71,12 +75,12 @@ export function DenseTable() {
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                 <TableHead>
-                    <TableRow>
-                        <TableCell>Produkt</TableCell>
-                        <TableCell align="right">Cena regularna (PLN)</TableCell>
-                        <TableCell align="right">Cena promocyjna (PLN)</TableCell>
-                        <TableCell align="right">Edytuj</TableCell>
-                        <TableCell align="right">Usuń</TableCell>
+                    <TableRow style={{backgroundColor: "#c8d4eb"}}>
+                        <TableCell><Typography variant="h7" style={{fontWeight: 'bold'}}>Produkt</Typography></TableCell>
+                        <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Cena regularna (PLN)</Typography></TableCell>
+                        <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Cena z rabatem (PLN)</Typography></TableCell>
+                        <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Edytuj</Typography></TableCell>
+                        <TableCell align="right"><Typography variant="h7" style={{fontWeight: 'bold'}}>Usuń</Typography></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -97,7 +101,7 @@ export function DenseTable() {
                 </TableBody>
             </Table>
 
-            <ModalUnstyledProductEdit open={openEditModal} onClose={() => setOpenEditModal(false)} selectedProduct={selectedProduct} />
+            <ProductRecordEditionModal open={openEditModal} onClose={() => setOpenEditModal(false)} selectedProduct={selectedProduct} />
 
         </TableContainer>
     );

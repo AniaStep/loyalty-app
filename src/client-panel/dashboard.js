@@ -20,7 +20,6 @@ function BasicGrid() {
     const itemStyle = {
         height: "80vh",
         marginTop: 20,
-        paddingBottom: 15,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -30,12 +29,12 @@ function BasicGrid() {
         <div className="dashboard-container">
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', xl: 'flex' }}}>
                 <Grid container spacing={2}>
-                    <Grid item xl={7} md={7}>
+                    <Grid item xl={7} md={6}>
                         <Item style={itemStyle}>
                             <WelcomeInfoCard />
                         </Item>
                     </Grid>
-                    <Grid item xl={5} md={5}>
+                    <Grid item xl={5} md={6}>
                         <Item style={itemStyle}>
                             <Products/>
                         </Item>

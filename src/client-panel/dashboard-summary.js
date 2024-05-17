@@ -77,53 +77,53 @@ export const WelcomeInfoCard = () => {
 
                     <p>Cieszymy się jesteś z nami. To dobra decyzja!</p>
 
-
                     {(loyaltyRulesValue1 > 0 || loyaltyRulesPercentage3 > 0) ? (
-                    <p>Oto korzyści z uczestnictwa:</p>
+                            <p>Oto korzyści z uczestnictwa:</p>
                         )
                         : ""
                     }
 
                     {loyaltyRulesValue1 > 0 ? (
-                    <div className="benefits">
-                        <LoyaltyIcon/>
-                        <p>
-                            Za {loyaltyRulesValue1 === 1 ? 'każdy ' : 'każde '}
-                            <span
-                                style={{fontWeight: "bold"}}>{loyaltyRulesValue1} zł</span> {loyaltyRulesValue1 === 1 ? 'wydany' : 'wydane'} w
-                            naszym sklepie,
-                            otrzymujesz <span
-                            style={{fontWeight: "bold"}}>{loyaltyRulesPoints1} {loyaltyRulesPoints1 === 1 ? 'punkt' : (loyaltyRulesPoints1 % 10 >= 2 && loyaltyRulesPoints1 % 10 <= 4 && (loyaltyRulesPoints1 % 100 < 10 || loyaltyRulesPoints1 % 100 >= 20)) ? 'punkty' : 'punktów'}</span>.
-                        </p>
-                    </div>
-                    )
-                        : ""
-                    }
-
-                    {(loyaltyRulesValue1 > 0 && loyaltyRulesValue2 > 0) ? (
-                    <div className="benefits">
-                        <LoyaltyIcon/>
-                        <p>
-                            Punkty możesz następnie wykorzystać podczas kolejnych zakupów.
-                            {loyaltyRulesPoints2 === 1 ? ' Każdy' : ' Każde'} <span
-                            style={{fontWeight: "bold"}}>{loyaltyRulesPoints2} {loyaltyRulesPoints2 === 1 ? 'punkt' : (loyaltyRulesPoints2 % 10 >= 2 && loyaltyRulesPoints2 % 10 <= 4 && (loyaltyRulesPoints2 % 100 < 10 || loyaltyRulesPoints2 % 100 >= 20)) ? 'punkty' : 'punktów'}</span> to <span
-                            style={{fontWeight: "bold"}}>{loyaltyRulesValue2} zł.</span>
-                        </p>
-                    </div>
+                            <div className="benefits">
+                                <LoyaltyIcon/>
+                                <p>
+                                    Za {loyaltyRulesValue1 === 1 ? 'każdy ' : 'każde '}
+                                    <span
+                                        style={{fontWeight: "bold"}}>{loyaltyRulesValue1} zł</span> {loyaltyRulesValue1 === 1 ? 'wydany' : 'wydane'} w
+                                    naszym sklepie,
+                                    otrzymujesz <span
+                                    style={{fontWeight: "bold"}}>{loyaltyRulesPoints1} {loyaltyRulesPoints1 === 1 ? 'punkt' : (loyaltyRulesPoints1 % 10 >= 2 && loyaltyRulesPoints1 % 10 <= 4 && (loyaltyRulesPoints1 % 100 < 10 || loyaltyRulesPoints1 % 100 >= 20)) ? 'punkty' : 'punktów'}</span>.
+                                </p>
+                            </div>
                         )
                         : ""
                     }
 
-                    {loyaltyRulesPercentage3 > 0 ?(
-                    <div className="benefits">
-                        <LoyaltyIcon/>
-                        <p>
-                            Klienci, których łączna wartość zakupów to co najmniej <span
-                            style={{fontWeight: "bold"}}>{loyaltyRulesValue3} zł </span>otrzymują stały
-                            rabat w wysokości<span style={{fontWeight: "bold"}}> {loyaltyRulesPercentage3}% </span> na
-                            wszystkie nasze produkty.
-                        </p>
-                    </div>
+                    {(loyaltyRulesValue1 > 0 && loyaltyRulesValue2 > 0) ? (
+                            <div className="benefits">
+                                <LoyaltyIcon/>
+                                <p>
+                                    Punkty możesz następnie wykorzystać podczas kolejnych zakupów.
+                                    {loyaltyRulesPoints2 === 1 ? ' Każdy' : ' Każde'} <span
+                                    style={{fontWeight: "bold"}}>{loyaltyRulesPoints2} {loyaltyRulesPoints2 === 1 ? 'punkt' : (loyaltyRulesPoints2 % 10 >= 2 && loyaltyRulesPoints2 % 10 <= 4 && (loyaltyRulesPoints2 % 100 < 10 || loyaltyRulesPoints2 % 100 >= 20)) ? 'punkty' : 'punktów'}</span> to <span
+                                    style={{fontWeight: "bold"}}>{loyaltyRulesValue2} zł.</span>
+                                </p>
+                            </div>
+                        )
+                        : ""
+                    }
+
+                    {loyaltyRulesPercentage3 > 0 ? (
+                            <div className="benefits">
+                                <LoyaltyIcon/>
+                                <p>
+                                    Klienci, których łączna wartość zakupów to co najmniej <span
+                                    style={{fontWeight: "bold"}}>{loyaltyRulesValue3} zł </span>otrzymują stały
+                                    rabat w wysokości<span
+                                    style={{fontWeight: "bold"}}> {loyaltyRulesPercentage3}% </span> na
+                                    wszystkie nasze produkty.
+                                </p>
+                            </div>
                         )
                         : ""
                     }
@@ -141,18 +141,18 @@ export const WelcomeInfoCard = () => {
                     </p>
 
                     <p>
-                        {clientsDiscount === true && loyaltyRulesPercentage3 > 0? (
+                        {clientsDiscount === true && loyaltyRulesPercentage3 > 0 ? (
                             <>Dodatkowo otrzymujesz rabat w wysokości <span
                                 style={{fontWeight: "bold"}}>{loyaltyRulesPercentage3}%</span> na nasze produkty.</>
-                        ) : clientDiscountValueMissing > 0 && loyaltyRulesPercentage3 >0 ? (
+                        ) : clientDiscountValueMissing > 0 && loyaltyRulesPercentage3 > 0 ? (
                             <>Do stałego rabatu na nasze produkty brakuje Ci <span
                                 style={{fontWeight: "bold"}}>{clientDiscountValueMissing}</span> zł.</>
-                        ): ""}
+                        ) : ""}
                     </p>
 
                     <p>Dziękujemy, że jesteś z nami!</p>
                     <p>Pozdrawiamy,</p>
-                    <p>Zespół ABC Limited</p>
+                    <p style={{paddingBottom: "30px"}}>Zespół ABC Limited</p>
                 </div>
 
             </div>

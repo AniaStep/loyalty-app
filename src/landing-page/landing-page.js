@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export const LandingPage = () => {
-    return <h1>Tu jest miejsce na Landing Page. </h1>;
-}
+    const navigate = useNavigate();
+    navigate("/admin")
 
+    return <h1>Miejsce na Landing Page. </h1>;
+}

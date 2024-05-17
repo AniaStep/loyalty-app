@@ -6,7 +6,19 @@ Loyal-app is an application designed to manage loyalty programs based on points 
 
 ## Demo
 
-Check out the demo [here](https://aniastep.github.io/loyalty-app/#/admin).
+Check out the demo [here](https://aniastep.github.io/loyalty-app/#/client/7yOGoJFxpsaTu3sRwZ8XBiOt4tC3).
+
+### Przykładowe dane logowania
+
+You can use the following credentials to login to the client panel:
+
+#### Account 1:
+- **Email:** anna.azorzynska@example.com
+- **Password:** password
+
+#### Account 2:
+- **Email:** piotr.dabrowski@example.com
+- **Password:** password
 
 ![Dashboard screenshot](demo/admin-dashboard.png)
 

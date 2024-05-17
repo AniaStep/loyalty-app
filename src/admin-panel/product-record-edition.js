@@ -148,6 +148,7 @@ export function ProductRecordEditionModal(props) {
                             error={!!errors.priceRegular}
                             helperText={errors.priceRegular}
                             label="Cena regularna"
+                            type="number"
                             value={updatedProductData && updatedProductData.priceRegular ? updatedProductData.priceRegular : ''}
                             onChange={(e) => handleFieldChange('priceRegular', e.target.value)}
                         />

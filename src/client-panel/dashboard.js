@@ -20,6 +20,7 @@ function BasicGrid() {
     const itemStyle = {
         height: "80vh",
         marginTop: 20,
+        paddingBottom: 15,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",

@@ -51,7 +51,7 @@ export function AccountModal({ open, onClose }) {
                             phone: clientData.phone || '',
                             logoURL: clientData.logoURL || '',
                             adminName: clientData.adminName || '',
-                        });
+                        }, {merge: true});
                     } else {
                         console.log("No matching documents!");
                     }

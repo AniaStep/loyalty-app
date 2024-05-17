@@ -14,8 +14,11 @@ import {
     collection,
     getDocs,
     deleteDoc,
-    doc
+    doc,
+    query,
+    where
 } from 'firebase/firestore';
+import { useLocation } from "react-router-dom";
 import { ProductRecordEditionModal } from './product-record-edition';
 
 // Function to create row data
@@ -27,15 +30,18 @@ export function DenseTable() {
     const [ openEditModal, setOpenEditModal ] = useState(false);
     const [ selectedProduct, setSelectedProduct ] = useState(null);
     const [ products, setProducts ] = useState([]);
+    const location = useLocation();
+    const adminId = location.pathname.split("/")[2];
 
     // Function to fetch the list of products from the database
     const fetchProducts = async () => {
         try {
-            const querySnapshot = await getDocs(collection(db, 'products'));
+            const querySnapshot = await getDocs(query(collection(db, 'products'), where('adminId', '==', adminId)));
             const fetchedProducts = [];
             querySnapshot.forEach((doc) => {
                 fetchedProducts.push(doc.data());
             });
+            fetchedProducts.sort((a, b) => a.name.localeCompare(b.name));
             setProducts(fetchedProducts);
         } catch (error) {
             console.error("Error fetching products: ", error);

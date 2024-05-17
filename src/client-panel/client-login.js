@@ -5,7 +5,7 @@ import {
     addDoc,
     collection,
     getDocs,
-    query,
+    query, setDoc,
     where
 } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
@@ -76,30 +76,46 @@ export const ClientLogin = () => {
     // Function to sign up a new client
     const signUp = async () => {
         const currentDate = new Date().toISOString();
+
         if (!isAdminValid) {
             return;
         }
         try {
+            const clientsQuery = query(collection(db, 'clients'), where('email', '==', email));
+            const clientsSnapshot = await getDocs(clientsQuery);
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const docRef = await addDoc(clientCollectionRef, {
-                email: email,
-                adminId: adminId,
-                clientId: userCredential.user.uid,
-                dateFrom: currentDate,
-                adminName: "",
-                discount: false,
-                gained: 0,
-                lastShopping: "-",
-                totalPoints: 0,
-                totalValue: "-",
-                totalValueNum: 0,
-            });
+            if (!clientsSnapshot.empty) {
+                const clientDocRef = clientsSnapshot.docs[0].ref;
+                await setDoc(clientDocRef, {
+                    email: email,
+                    adminId: adminId,
+                    clientId: userCredential.user.uid,
+                    dateFrom: currentDate,
+                }, {merge: true});
+
+            }
+            else {
+                const docRef = await addDoc(collection(db, 'clients'), {
+                    email: email,
+                    adminId: adminId,
+                    clientId: userCredential.user.uid,
+                    dateFrom: currentDate,
+                    adminName: "",
+                    discount: false,
+                    gained: 0,
+                    totalPoints: 0,
+                    totalValue: "-",
+                    totalValueNum: 0,
+                });
+            }
+
             navigate(`/client/${adminId}/${userCredential.user.uid}`);
         } catch (err) {
             setError(errorsPL[err.code] || 'Wystąpił błąd podczas logowania.');
             console.error(err);
         }
     };
+
 
     // Function to sign in a client
     const signIn = async () => {

@@ -34,6 +34,7 @@ export const AdminPanel = () => {
             <ResponsiveAppBar/>
             <div>
                 {pageId === 'dashboard' && <Dashboard />}
+                {pageId === '' && <Dashboard />}
                 {pageId === 'statistics' && <Statistics />}
                 {pageId === 'clients' && <Clients />}
             </div>

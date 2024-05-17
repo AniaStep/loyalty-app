@@ -1,6 +1,6 @@
 import React from "react";
 import "./app.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { useAuth } from "./firebase/auth-provider";
 import { LandingPage } from "./landing-page/landing-page";
 import { AdminLogin } from "./admin-panel/admin-login";

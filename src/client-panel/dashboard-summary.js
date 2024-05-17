@@ -133,7 +133,7 @@ export const WelcomeInfoCard = () => {
                             <>Obecnie masz <span
                                 style={{fontWeight: "bold"}}>{clientsTotalPoints}</span> {clientsTotalPoints === 1 ? 'punkt' : (clientsTotalPoints % 10 >= 2 && clientsTotalPoints % 10 <= 4 && (clientsTotalPoints % 100 < 10 || clientsTotalPoints % 100 >= 20)) ? 'punkty' : 'punktów'},
                                 co stanowi równowartość <span
-                                    style={{fontWeight: "bold"}}>{clientsGained}</span> zł.</>
+                                    style={{fontWeight: "bold"}}>{clientsGained.toFixed(1)}</span> zł.</>
                         ) : loyaltyRulesPoints2 === 0 || loyaltyRulesPoints1 === 0 ?
                             "" :
                             "Obecnie nie masz jeszcze żadnych punktów."

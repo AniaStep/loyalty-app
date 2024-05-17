@@ -30,8 +30,8 @@ export function BasicTable({ rows, clientsDiscount, discount }) {
     }
 
     return (
-        <TableContainer component={Paper} style={{width: "400px", overflow: "auto"}}>
-            <Table sx={{ minWidth: 400 }} aria-label="simple table">
+        <TableContainer component={Paper} style={{width: "500px", overflow: "auto"}}>
+            <Table sx={{ minWidth: 500 }} aria-label="simple table">
                 <TableHead>
                     <TableRow style={{backgroundColor: "#c8d4eb"}}>
                         <TableCell><Typography variant="h7" style={{fontWeight: 'bold'}}>Produkt</Typography></TableCell>

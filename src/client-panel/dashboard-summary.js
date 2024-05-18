@@ -22,6 +22,7 @@ export const WelcomeInfoCard = () => {
     const [loyaltyRulesPercentage3, setLoyaltyRulesPercentage3] = useState(0);
     const [clientsTotalPoints, setClientsTotalPoints] = useState(0);
     const [clientsTotalValueNum, setClientsTotalValueNum] = useState(0);
+    const [clientsAdminName, setClientsAdminName] = useState("")
     const [clientsName, setClientsName] = useState("");
     const [clientsDiscount, setClientsDiscount] = useState(false);
     const [clientsGained, setClientsGained] = useState(0);
@@ -53,6 +54,7 @@ export const WelcomeInfoCard = () => {
                     setClientsTotalPoints(clientsData.totalPoints);
                     setClientsTotalValueNum(clientsData.totalValueNum);
                     setClientsDiscount(clientsData.discount);
+                    setClientsAdminName(clientsData.adminName);
                     setClientsGained(loyaltyRulesData.points2 > 0 ? (clientsData.totalPoints / loyaltyRulesData.points2 * loyaltyRulesData.value2) : 0);
                     setClientDiscountValueMissing(clientsData.totalValueNum > 0 ? loyaltyRulesData.value3 - clientsData.totalValueNum : loyaltyRulesData.value3);
                 }
@@ -152,7 +154,7 @@ export const WelcomeInfoCard = () => {
 
                     <p>Dziękujemy, że jesteś z nami!</p>
                     <p>Pozdrawiamy,</p>
-                    <p style={{paddingBottom: "30px"}}>Zespół ABC Limited</p>
+                    <p style={{paddingBottom: "30px"}}>{clientsAdminName}</p>
                 </div>
 
             </div>

@@ -51,7 +51,7 @@ export function Variant1({ onChange, value1, points1 }) {
             inputProps={{min: 0}}
             onChange={handleValue1Change}
         />
-        <p> zł wydany w sklepie, przyznaj </p>
+        <p> zł, przyznaj </p>
     <TextField
                 label="Liczba punktów"
                 type="number"

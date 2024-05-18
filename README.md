@@ -33,13 +33,13 @@ For [admin panel](https://aniastep.github.io/loyalty-app/#/admin):
 
 ## Features
 
-- Login page for administrators (registration is done offline).
-- Login and registration pages for clients.
+- Login and password reset pages for administrators (registration is done offline).
+- Login, registration and password reset pages for clients.
 - Administrator panel:
     - Dashboard and basic statistics (placeholder for additional statistics).
     - List of clients - ability to add, remove, and edit client data, including pagination and search functionality.
     - Ability to customize the appearance of the login page, password reset, and client panel by adding the company logo.
-    - Dedicated links to login, password reset, and client panel pages for each client.
+    - Dedicated links to login, password reset, and client panel pages for administrator's clients.
     - Configuration of the points allocation system.
 
 - Client panel:

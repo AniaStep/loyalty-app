@@ -1,8 +1,8 @@
-# Loyal-app
+# Loyalty-app
 
 ## Description
 
-Loyal-app is an application designed to manage loyalty programs based on points accumulation for small brick-and-mortar stores. It consists of an administrator panel and a client panel.
+Loyalty-app is an application designed to manage loyalty programs based on points accumulation for small brick-and-mortar stores. It consists of an administrator panel and a client panel.
 
 ## Demo
 
@@ -19,7 +19,7 @@ Check out the demo. You can use the following credentials to login to the [clien
 For [admin panel](https://aniastep.github.io/loyalty-app/#/admin):
 
 #### Account:
-- **Email:** 9.pazdziernik@gmail.com
+- **Email:** cofeetime.admin@example.com
 - **Password:** password
 
 
@@ -48,7 +48,7 @@ For [admin panel](https://aniastep.github.io/loyalty-app/#/admin):
 
 ## Technologies
 
-- React.js with Hooks
+- React with Hooks
 - React Router
 - Firebase Firestore
 - Firebase Authentication

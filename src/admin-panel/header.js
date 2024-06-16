@@ -82,7 +82,7 @@ export function ResponsiveAppBar() {
 
     return (
         <AppBar position="static">
-            <Container maxWidth="xl" className="header">
+            <Container maxWidth="100vw" className="header">
                 <Toolbar disableGutters>
                     {/*<FilterVintageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />*/}
                     <Typography

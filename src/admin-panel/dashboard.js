@@ -19,7 +19,7 @@ const Item = styled(Paper)(({ theme }) => ({
 // Function creating a basic grid layout for Dashboard component
 function BasicGrid() {
     const itemStyle = {
-        height: "550px",
+        height: "650px",
         marginTop: 20,
         display: "flex",
         flexDirection: "column",

@@ -108,6 +108,7 @@ body {
   align-items: center;
   justify-content: center;
   color: grey;
+  padding: 10px;
 }
 
 .logo {

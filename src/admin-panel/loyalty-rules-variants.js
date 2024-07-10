@@ -45,7 +45,7 @@ export function Variant1({ onChange, value1, points1 }) {
        <>
         <p>{getValue1Text(value1)}</p>
         <TextField
-            label="Watość zakupów"
+            label="Wartość zakupów"
             type="number"
             value={value1}
             inputProps={{min: 0}}
@@ -120,7 +120,7 @@ export function Variant2({ onChange, value2, points2 }) {
                 {getPoints2Text2(points2)}
             </p>
             <TextField
-                label="Watość zakupów"
+                label="Wartość zakupów"
                 type="number"
                 value={value2}
                 inputProps={{min: 0}}
@@ -153,7 +153,7 @@ export function Variant3({ onChange, value3, percentage3 }) {
             <div style={{display: 'flex', gap: "8px"}}>
                 <p>Klienci, którzy wydali w sklepie co najmniej </p>
                 <TextField
-                label="Watość zakupów"
+                label="Wartość zakupów"
                 type="number"
                 value={value3}
                 inputProps={{min: 0}}

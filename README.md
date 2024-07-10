@@ -6,7 +6,7 @@ Loyalty-app is an application designed to manage loyalty programs based on point
 
 ## Demo
 
-Check out the demo. You can use the following credentials to login to the [client panel](https://aniastep.github.io/loyalty-app/#/client/7yOGoJFxpsaTu3sRwZ8XBiOt4tC3):
+Check out the demo. You can use the following credentials to login to the [client panel](https://aniastep.github.io/loyalty-app/#/client/EdIaNsw6EZfFdvi2Vhq7qNrHcQq2):
 
 #### Account 1:
 - **Email:** anna.azorzynska@example.com

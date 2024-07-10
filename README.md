@@ -2,7 +2,7 @@
 
 ## Description
 
-Loyalty-app is an application designed to manage loyalty programs based on points accumulation for small brick-and-mortar stores. It consists of an administrator panel and a client panel.
+Loyalty-app is an application designed to manage loyalty programs based on points accumulation for small brick-and-mortar stores. It consists of an administrator panel and a client panel. The application was created as a final project for a JavaScript course.
 
 ## Demo
 
